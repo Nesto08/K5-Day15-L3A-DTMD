@@ -11,10 +11,10 @@
 
 | STT | Họ và tên | Mã học viên | Vai trò | Phần việc chính |
 |---|---|---|---|---|
-| 1 | Bùi Nguyên Dũng | 2A202603587 | Đội trưởng | ____ |
-| 2 | Nguyễn Khánh Duy | 2A202603575 | Thành viên | ____ |
-| 3 | Nguyễn Đức Trọng | 2A202603367 | Thành viên | ____ |
-| 4 | Nguyễn Hoàng Văn Tiến Mạnh | 2A202603717 | Thành viên | ____ |
+| 1 | Bùi Nguyên Dũng | 2A202603587 | Đội trưởng | AI Core, kiến trúc hệ thống, guardrails, quản lý tiến độ và checkpoint |
+| 2 | Nguyễn Khánh Duy | 2A202603575 | Thành viên | Product Research, Canvas, Evidence, thuyết trình |
+| 3 | Nguyễn Đức Trọng | 2A202603367 | Thành viên | Application, Data Card, giao diện, tích hợp, slide và demo |
+| 4 | Nguyễn Hoàng Văn Tiến Mạnh | 2A202603717 | Thành viên | Benchmark, Metrics, Evaluation, phân tích lỗi và chi phí |
 
 **Quy tắc điền**
 - **Lớp:** `L3A` hoặc `L3B`. **Track:** một chữ `A` (EdTech), `B` (Y tế), `C` (Du lịch), `D` (Thương mại điện tử), `E` (Tài chính) hoặc `F` (Làn khác). **Link repo:** link GitHub công khai của nhóm.
