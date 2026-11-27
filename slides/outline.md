@@ -20,7 +20,7 @@
 
 ---
 
-## PHẦN 2. NỘI DUNG CHI TIẾT TỪNG SLIDE (Task 7 & Task 8 — Để Trọng TV3 đưa thẳng vào Slide)
+## PHẦN 2. NỘI DUNG CHI TIẾT TỪNG SLIDE (Task 7 & Task 8)
 
 ### SLIDE 1: NGƯỜI DÙNG & NỖI ĐAU THẬT (PAIN POINT & EVIDENCE)
 - **Tiêu đề Slide:** Khi lệnh chuyển tiền bị tạm chặn (`TEMP_HELD`): Sai cả hai hướng đều đắt!
