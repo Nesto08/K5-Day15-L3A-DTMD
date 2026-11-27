@@ -35,3 +35,15 @@ evidence/**/raw-*
 # Nguyên file data BTC cấp (data/preclass, data/training-ops… của repo đề): để ở đây, không commit
 data-btc
 data-btc/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Python environment and cache
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
