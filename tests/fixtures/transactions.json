@@ -1,0 +1,35 @@
+
+[
+    {
+        "tx_id": "TX001",
+        "user_id": "USER001",
+        "amount": 15000000,
+        "currency": "VND",
+        "recipient": "RECIPIENT001",
+        "status": "TEMP_HELD",
+        "face_id_verified": true,
+        "memo": "",
+        "transaction_flags": {
+            "T01": false,
+            "T02": true,
+            "T03": true,
+            "T04": false
+        }
+    },
+    {
+        "tx_id": "TX002",
+        "user_id": "USER002",
+        "amount": 8000000,
+        "currency": "VND",
+        "recipient": "RECIPIENT002",
+        "status": "TEMP_HELD",
+        "face_id_verified": true,
+        "memo": "",
+        "transaction_flags": {
+            "T01": false,
+            "T02": true,
+            "T03": true,
+            "T04": true
+        }
+    }
+]

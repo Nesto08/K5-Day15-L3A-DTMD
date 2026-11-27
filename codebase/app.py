@@ -1,68 +1,106 @@
-"""Khung chạy bản chạy thử tối thiểu (dòng lệnh): gõ đầu vào → answer() trong agent.py → in kết quả.
+﻿"""CLI demo - Track E3, nhom DTMD."""
 
-Chạy bằng: python run.py   (macOS/Linux có thể là python3, Windows có thể là py)
-Nhóm thay bằng giao diện của mình (web, bot…) nhưng giữ `python run.py` là lệnh duy nhất
-để chạy bản chạy thử (sửa hàm run_app() trong run.py nếu cần).
-"""
 import os
 import sys
 
-for _stream in (sys.stdout, sys.stderr, sys.stdin):
+for stream in (sys.stdout, sys.stderr, sys.stdin):
     try:
-        _stream.reconfigure(encoding="utf-8", errors="replace")
+        stream.reconfigure(
+            encoding="utf-8",
+            errors="replace",
+        )
     except Exception:
         pass
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(
+    0,
+    os.path.dirname(os.path.abspath(__file__)),
+)
 
-
-def _where(e):
-    """File (trong codebase/) gây lỗi khi nạp: SyntaxError có e.filename, lỗi khác lấy khung cuối của traceback."""
-    import traceback
-    path = getattr(e, "filename", None) or (traceback.extract_tb(e.__traceback__)[-1].filename if e.__traceback__ else "")
-    if not path:
-        return "codebase/"
-    p = os.path.abspath(path)
-    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.relpath(p, base).replace(os.sep, "/") if p.startswith(base) else path
 
 def main() -> int:
+
     try:
         import tracing
-        from agent import answer
-    except Exception as e:  # lỗi cú pháp, thiếu thư viện… trong codebase/
-        print("Không nạp được codebase/ — lỗi ở %s: %s: %s" % (_where(e), type(e).__name__, e))
-        print("Sửa lỗi rồi chạy lại. Cách nối model: docs/connect-model.md")
+        from agent import create_session, run_agent
+
+    except Exception as exc:
+        print(
+            "Khong nap duoc codebase:",
+            type(exc).__name__,
+            str(exc),
+        )
         return 1
-    print("Bản chạy thử — gõ đầu vào rồi Enter. Thoát: Ctrl+C (hoặc Enter 2 lần với dòng trống).")
+
+    session = create_session()
+
+    print("=" * 60)
+    print("DTMD - VI AN TOAN")
+    print("Track E3 - AI Product Hackathon")
+    print("=" * 60)
+    print("Moi truong mo phong, khong giao dich tien that.")
+    print("/reset : Bat dau tinh huong moi")
+    print("/exit  : Thoat chuong trinh")
+    print("=" * 60)
+
     blank = 0
+
     while True:
+
         try:
-            text = input("> ").strip()
+            text = input("\nBan: ").strip()
+
         except (EOFError, KeyboardInterrupt):
-            print()
+            print("\nDa ket thuc phien.")
             return 0
+
         if not text:
             blank += 1
+
             if blank >= 2:
                 return 0
+
             continue
+
         blank = 0
-        tracing.begin("app")
-        try:
-            result = answer(text)
-        except NotImplementedError as e:
-            tracing.end()
-            print("Chưa nối model: %s" % e)
-            return 1
-        except Exception as e:  # lỗi gọi model: báo rồi cho hỏi tiếp
-            tracing.end()
-            print("[lỗi] %s: %s" % (type(e).__name__, e))
+
+        if text.lower() == "/exit":
+            return 0
+
+        if text.lower() == "/reset":
+            session = create_session()
+            print("Da bat dau tinh huong moi.")
             continue
-        s, _ = tracing.end()
-        print(result.get("output", "") if isinstance(result, dict) else result)
-        print("   (model: %s · gọi model %d lần · công cụ %d lần · token vào %d / ra %d)"
-              % (", ".join(s["models"]) or "—", s["model_calls"], s["tool_calls"], s["tokens_in"], s["tokens_out"]))
+
+        tracing.begin("app")
+
+        try:
+            result = run_agent(text, session)
+
+        except Exception as exc:
+            tracing.end()
+            print(
+                "[Loi xu ly]",
+                type(exc).__name__,
+            )
+            continue
+
+        stats, events = tracing.end()
+
+        print("\nAgent:", result.get("output", ""))
+
+        print(
+            "\n[TRACE]"
+            f"\nClassification: {result.get('classification')}"
+            f"\nAction: {result.get('action')}"
+            f"\nPriority: {result.get('priority')}"
+            f"\nQuestions: {session['question_count']}"
+            f"\nModel: {', '.join(stats['models']) or '-'}"
+            f"\nModel calls: {stats['model_calls']}"
+            f"\nTool calls: {stats['tool_calls']}"
+            f"\nTokens in: {stats['tokens_in']}"
+            f"\nTokens out: {stats['tokens_out']}"
+        )
 
 
 if __name__ == "__main__":
