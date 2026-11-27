@@ -23,8 +23,8 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
   - *Vì sao chưa bỏ:* Khung Chat hỗ trợ trong app là kênh chính thức và miễn phí duy nhất gắn liền với giao dịch đang bị tạm giữ trên ví.
 - **Pain (KHÔNG chữ AI):** Chủ ví điện tử cá nhân — đang cần chuyển một khoản tiền nhưng giao dịch vừa bị hệ thống tạm chặn — vướng ở chỗ khi nhắn vào khung chat hỗ trợ thì chỉ nhận được thông báo mẫu rập khuôn không rõ lý do và phải chờ nhân viên trực quá lâu — hậu quả là người cần chuyển gấp thật bị lỡ việc khẩn cấp và mất lòng tin, trong khi nạn nhân đang bị kẻ gian hối thúc (APP Scam) lại nài nỉ mở khóa hoặc tìm cách lách chặn khiến tiền chuyển đi mất trắng trong vài giây.
 - **Bằng chứng — số chính + kết luận (chi tiết: `evidence/summary.md`):**
-  - *Đào data công khai (`evidence/data-mining.md`):* Đào review công khai trên Google Play / App Store và quy trình hỗ trợ công khai [cập nhật số liệu x/N tại `evidence/data-mining.md`].
-  - *Khảo sát & Phỏng vấn (`evidence/survey/` & `evidence/interviews/`):* Khảo sát người dùng ví điện tử và phỏng vấn sâu người dùng ngoài nhóm kèm ≥ 5 trích dẫn nguyên văn đã ẩn danh [cập nhật số tổng hợp tại `evidence/summary.md`].
+  - *Khảo sát (`n = 21` người dùng ví/ngân hàng ngoài nhóm — `evidence/survey/results.csv`):* `15/21 (71,4%)` bản thân hoặc người thân từng gặp giao dịch bị tạm chặn; `17/21 (81,0%)` khó chịu nhất vì chatbot trả lời chung chung không đúng vấn đề; `12/21 (57,1%)` từng bị trễ hạn thanh toán/công việc; `19/21 (90,5%)` đồng ý AI phải giữ lệnh chặn khi có dấu hiệu lừa đảo dù người dùng đòi mở khóa. Kết luận: Giả thuyết ở `evidence/hypothesis.md` **ĐÚNG**.
+  - *Nguồn kiểm chéo trước CP3:* Sẽ bổ sung đào review công khai (`evidence/data-mining.md`) và phỏng vấn sâu (`evidence/interviews/`).
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 
@@ -62,7 +62,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
 
     Mục tiêu là bảo vệ người dùng trước nguy cơ lừa đảo mà không bỏ lơ các nhu cầu giao dịch khẩn cấp hợp lệ. Hiệu quả của giải pháp sẽ được kiểm chứng thông qua benchmark và evaluation.
 
-  - *Nguồn tham khảo:* Bổ sung nguồn chính thức về các giải pháp hỗ trợ khách hàng và cảnh báo lừa đảo của ví điện tử, ngân hàng theo kết quả nghiên cứu của nhóm. Các nhận định về hạn chế của chatbot kịch bản cố định là phân tích thiết kế, không phải kết luận đã kiểm chứng đối với từng sản phẩm cụ thể.
+  - *Nguồn tham khảo:* Trang Trợ giúp & Bảo mật công khai của Ví điện tử MoMo / ZaloPay (quy trình tạm giữ giao dịch kiểm tra an toàn, trợ lý ảo 24/7 và nhân viên hỗ trợ trực 8h–20h) đối chiếu với kết quả khảo sát thực tế `n = 21` người dùng ví/ngân hàng tại `evidence/summary.md` (`17/21` · `81,0%` gặp tình trạng chatbot trả lời chung chung không đúng vấn đề).
 
 ## §4. Thiết kế *(guide 2.2, 3.2)*
 
@@ -174,12 +174,12 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
 
   - **Single LLM Agent:** Sử dụng hồ sơ giao dịch, tin nhắn người dùng, kết quả Rulebase và dữ liệu retrieval để phân loại vào bốn nhóm:
 
-    | Nhánh | Nhãn phân loại | Ý nghĩa |
+    | Nhánh | Nhãn phân loại (Agent / Data Card) | Ý nghĩa |
     | :--- | :--- | :--- |
-    | 1 | `suspected_scam` | Nghi bị thao túng chuyển tiền — APP Scam |
-    | 2 | `legitimate_urgent` | Nhu cầu khẩn cấp có dấu hiệu hợp lệ |
-    | 3 | `account_takeover` | Nghi bị chiếm quyền kiểm soát tài khoản — ATO |
-    | 4 | `unclear` | Chưa đủ thông tin để kết luận |
+    | 1 | `suspected_scam` (`PRESSURE_TRANSFER`) | Nghi bị thao túng chuyển tiền — APP Scam |
+    | 2 | `legitimate_urgent` (`LEGITIMATE_URGENT`) | Nhu cầu khẩn cấp có dấu hiệu hợp lệ |
+    | 3 | `account_takeover` (`ACCOUNT_TAKEOVER`) | Nghi bị chiếm quyền kiểm soát tài khoản — ATO |
+    | 4 | `unclear` (`UNCLEAR`) | Chưa đủ thông tin để kết luận |
 
   - **Deterministic Policy Engine:** Kiểm tra kết quả LLM, áp dụng các bất biến an toàn và lựa chọn công cụ được phép thực thi. Các dấu hiệu bảo mật nghiêm trọng và cờ cảnh báo đã được xác lập không bị bỏ qua chỉ vì LLM đề xuất một nhánh ít rủi ro hơn.
 
@@ -340,7 +340,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
 - **Đầu vào dự kiến.** Dùng 3 persona của §2: một lượt chat (60%, 1 phiên/người/tháng), nhiều lượt chat (30%, 1,5 phiên) và yêu cầu kép hoặc dò ngưỡng (10%, 2 phiên). Các số này là *tự ước tính*, tương đương 1,25 phiên/người/tháng. Quy mô thấp, cơ sở và cao dự kiến là 5.000, 10.000 và 20.000 chủ ví gặp sự cố mỗi tháng (*tự ước tính*, lấy mốc cơ sở theo công thức §2). Cập nhật `cost/personas.yaml` bằng các đầu vào E3 và giá trả phí có nguồn của ít nhất 2 mức model (rẻ và mạnh).
 - **Mô phỏng và kết quả.** Chưa có lượt mô phỏng E3. Thử 10 phiên trước CP3 bằng `python run.py simulate --try`. Trước CP4, chạy ≥50 phiên với seed cố định qua bản chạy thử, đo token, lượt gọi model/công cụ và thời gian. Lấy chi phí trung bình mỗi phiên chia cho tỷ lệ đạt đã chấm của lượt 2. Ghi chi phí mỗi task thành công và chi phí tháng ở cả 3 kịch bản cho mỗi model vào `cost/cost-estimate.md`, trỏ về `cost/simulate-N.csv`.
-- **So với tác động.** Theo giả định §2, mỗi người gặp sự cố chịu khoảng 18 phút chờ/tháng và phát sinh khoảng 12 phút công tư vấn viên/tháng. Đây là thời gian hiện tại ước tính. Cần kết quả mô phỏng và số phút thực sự tiết kiệm để kết luận có đáng triển khai hay không.
+- **So với tác động.** Theo công thức §2 (`1,2 lần/tháng × [15 phút khách chờ + 10 phút công tư vấn viên]`), mỗi người gặp sự cố chịu khoảng **18 phút chờ/tháng** và phát sinh khoảng **12 phút công tư vấn viên/tháng** (tổng **30 phút/người/tháng**, tương đương 300.000 phút/tháng trên 10.000 người). Sau khi chạy mô phỏng `python run.py simulate` ở CP4, nhóm sẽ đối chiếu chi phí AI/người/tháng với giá trị 30 phút tiết kiệm này để kết luận hiệu quả kinh tế (ROI).
 
 ## §9. Rủi ro & an toàn
 - **Dữ liệu: đã ẩn danh gì, không thu gì, không đưa gì vào model gói miễn phí:**
@@ -354,9 +354,12 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
   - Nếu AI hỏi vòng vo ca Gấp thật (đóng viện phí, cọc gấp): Khách lỡ việc khẩn cấp $\rightarrow$ Chặn bằng luồng ưu tiên gọi `handoff_to_agent` kèm `Handoff Summary` chuyển thẳng Tư vấn viên xử lý ngay trong 1 lượt.
 
 ## §10. Phân công & changelog
-- Phân công có tên (theo chặng, chia cặp — guide "Cách chia việc"): __
-- Dùng AI vào việc gì (2–3 dòng; chi tiết `docs/ai-usage.md`):
-- Nhật ký thay đổi — **mọi thay đổi sau CP2 19:30 Thứ Sáu 27/11 phải có dòng ở đây**:
+- **Phân công có tên (theo chặng, chia cặp — guide "Cách chia việc"):**
+  - **Cặp X (Kiến trúc AI Core, Dữ liệu Sandbox, Ứng dụng & Demo):** Bùi Nguyên Dũng (`TV1` · Đội trưởng — `spec.md` [kiến trúc], `codebase/agent.py`, `codebase/ai.py`, `codebase/tools.py`, guardrails) & Nguyễn Đức Trọng (`TV3` — `data/DATA_CARD.md`, pipeline dữ liệu `synthetic`, `codebase/app.py`, `demo-slides.pdf`, video demo).
+  - **Cặp Y (Nghiên cứu Người dùng, Nghiệp vụ, Đánh giá Benchmark & Chi phí):** Nguyễn Khánh Duy (`TV2` — `canvas.md`, `spec.md` [nghiệp vụ], `evidence/`, `validation/log.md`, `slides/outline.md`, thuyết trình) & Nguyễn Hoàng Văn Tiến Mạnh (`TV4` — `eval/benchmark.csv`, `eval/metric_spec.yaml`, `eval/report.md`, `cost/personas.yaml`, `cost/cost-estimate.md`).
+  - *Cả nhóm cùng làm:* Thu thập khảo sát/phỏng vấn người dùng thật, thống nhất câu chuyện Pain → Impact → Giải pháp → Đánh giá → Chi phí trước mỗi checkpoint, chấm chéo bộ câu thử và phân tích lỗi giữa Lượt 1 → Lượt 2.
+- **Dùng AI vào việc gì (2–3 dòng; chi tiết `docs/ai-usage.md`):** Nhóm sử dụng công cụ AI (Coding Agent / LLM) để hỗ trợ rà soát cấu trúc tài liệu theo rubric, sinh dữ liệu giao dịch giả lập (`synthetic`, seed 42), gợi ý khung code guardrails và kiểm tra chính tả/định dạng bảng. Toàn bộ giả thuyết, câu hỏi khảo sát, dữ liệu khảo sát người dùng thật (`n = 21`), quyết định chọn lát cắt E3, chuẩn "đạt" và việc chấm điểm đánh giá đều do các thành viên trực tiếp thực hiện và kiểm chứng.
+- **Nhật ký thay đổi — mọi thay đổi sau CP2 19:30 Thứ Sáu 27/11 phải có dòng ở đây:**
 
 **CP2 → CP4** (vd thu hẹp lát cắt, hỏi thêm người dùng, lần cải tiến trước lượt 2)
 
