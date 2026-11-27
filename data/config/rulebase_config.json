@@ -1,0 +1,17 @@
+{
+  "transaction_rule_version": "T01-T04-candidate-v1",
+  "context_rule_version": "R01-R07-B1-v1.0",
+  "extension_rule_ids": ["R08", "R10", "R16", "R20", "R21", "R22"],
+  "statuses": ["MATCHED", "NOT_MATCHED", "UNKNOWN"],
+  "transaction_weights": {"T01": -15, "T02": 25, "T03": 15, "T04": 65},
+  "context_weights": {"R01": 20, "R02": 15, "R03": 25, "R04": 20, "R07": 20},
+  "non_scoring_rules": ["R05", "R06"],
+  "threshold_conflict": {
+    "high_descriptions": [65, 75],
+    "medium_descriptions": [30, 35],
+    "status": "UNRESOLVED_REQUIRES_CODEBASE_CONFIRMATION",
+    "note": "Do not treat this config as production threshold authority. Preserve raw score and compare with actual codebase."
+  },
+  "decision_branches": ["PRESSURE_TRANSFER", "LEGITIMATE_URGENT", "ACCOUNT_TAKEOVER", "UNCLEAR"],
+  "autonomy_levels": [1, 2, 3]
+}
