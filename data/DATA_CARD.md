@@ -1,14 +1,14 @@
 # DATA CARD — E3 Data Pipeline v2
 
 **Dự án:** E3 · Giao dịch nghi lừa đảo bị tạm chặn (DTMD)  
-**Phiên bản:** 2.1 (pipeline v2, benchmark CLI bản đầu)<br>
+**Phiên bản:** 2.0  
 **Ngày tạo/cập nhật:** 27-11-2026  
-**Trạng thái:** Giao dịch, sổ cái và hội thoại trong pipeline là dữ liệu tổng hợp (`synthetic`). Khảo sát thực địa có 21 người trả lời, được tổng hợp tại [`evidence/summary.md`](../evidence/summary.md). Một phần lời khảo sát đã được chuyển thể thành câu thử cho CLI.<br>
+**Trạng thái:** Bộ dữ liệu khởi tạo hoàn toàn bằng dữ liệu tổng hợp (`synthetic`); chưa có dữ liệu khách hàng thật hoặc dữ liệu thực địa.  
 **Mục đích:** Phát triển và kiểm thử pipeline dữ liệu, kiểm tra logic nhãn/luồng hành động, và chuẩn bị benchmark cho AI hỗ trợ trong chat ví điện tử.
 
 > **Cảnh báo sử dụng:** Không dataset nào trong gói này là bằng chứng về trải nghiệm/pain point của người dùng, tỷ lệ lừa đảo, hiệu quả phát hiện, hay hiệu năng mô hình. Các tình huống và nhãn kỳ vọng do nhóm thiết kế để kiểm thử theo đặc tả E3. Không dùng trực tiếp để ra quyết định giao dịch hoặc huấn luyện mô hình production nếu chưa được rà soát, bổ sung dữ liệu phù hợp và phê duyệt.
 
-## 1. Nguồn gốc và phương pháp tạo dữ liệu của pipeline
+## 1. Nguồn gốc và phương pháp tạo dữ liệu
 
 - **Nguồn:** Nhóm tự thiết kế các tình huống theo đặc tả T01–T04, R01–R07 và các luật mở rộng R08/R10/R16/R20/R21/R22 được cung cấp trong dự án. Không lấy từ khách hàng, sổ cái thật, báo cáo lừa đảo thật hay nguồn tình báo bên ngoài.
 - **Cách tạo:** Script `scripts/generate_synthetic.py` sinh JSONL theo danh sách kịch bản định nghĩa trong mã nguồn; mặc định `--seed 42`, `--benchmark-count 25`. Thời điểm dữ liệu được cố định trong script để kết quả tái lập.
@@ -29,12 +29,6 @@
 **Dữ liệu processed:** `rule_assessments.jsonl` (25), `risk_decisions.jsonl` (25), `action_expectations.jsonl` (25), `benchmark_cases.jsonl` (25). Đây là đầu ra dẫn xuất từ fixture, không phải dataset nguồn độc lập.
 
 **Phân bố 25 benchmark case theo nhánh kỳ vọng:** `PRESSURE_TRANSFER` 7; `LEGITIMATE_URGENT` 6; `ACCOUNT_TAKEOVER` 7; `UNCLEAR` 5. Phân bố này được chủ động thiết kế, không phản ánh tần suất ngoài đời.
-
-**Benchmark CLI** ([`eval/benchmark.csv`](../eval/benchmark.csv), bản đầu ngày 27-11-2026) có 20 câu thử để chạy `python run.py eval`. Trong đó, 10 câu mang nguồn `nguoi_dung` và 10 câu `tu_viet` từ kịch bản [`spec.md` §5](../spec.md). Hai ca tấn công là B14 và B15. Tập CSV này được dùng làm bộ đánh giá CLI, còn tập JSONL của pipeline kiểm thử logic dữ liệu và nhãn.
-
-- **Chọn và làm sạch.** Lọc câu trả lời mở C8/C13 trong `evidence/survey/results.csv` có tình huống liên quan, chuyển thành tin nhắn hỗ trợ với ngữ cảnh tạm giữ khi cần, chỉ giữ mã phiếu `Sxx` và số câu để truy vết. Nội dung chuyển thể không được dùng làm trích dẫn nguyên văn hay bằng chứng về một giao dịch có thật. Không đưa tên, thời gian trả lời, tài khoản hay sao kê vào CSV. Mã thử ở B12 là dữ liệu giả.
-- **Độ phủ.** Dùng bốn chiều gồm vai người nhắn, loại tình huống, mức đủ thông tin và hành vi mong đợi. Các mã B03, B05–B15 đối chiếu theo §5. Phần tình huống tự viết và nhãn kỳ vọng cần rà soát nghiệp vụ trước khi chốt.
-- **Phân tập.** CSV là một tập đánh giá chung, chưa tách tập giữ riêng. Việc chia theo `scenario_family_id` chỉ áp dụng cho pipeline JSONL.
 
 ## 3. Quy trình xử lý và lineage
 
@@ -80,7 +74,7 @@ python -m unittest discover -s tests -v
 
 ## 7. Kế hoạch bổ sung dữ liệu
 
-1. Kiểm chéo nguồn và nội dung chuyển thể từ khảo sát. Nếu cần bổ sung câu thử, dùng lời phỏng vấn đã ẩn danh hoặc ví dụ công khai có nguồn. Dữ liệu giao dịch chạy thử tiếp tục dùng dữ liệu giả lập.
+1. Thu thập dữ liệu hội thoại đã được phê duyệt, tối thiểu hóa dữ liệu và loại bỏ/che PII; ghi rõ cơ sở pháp lý, quyền truy cập, thời hạn lưu và người chịu trách nhiệm.
 2. Thu thập nhãn từ ít nhất hai người gán nhãn độc lập theo guideline cho bốn nhánh, từng rule, mức độ chắc chắn và hành động an toàn; xử lý bất đồng bằng adjudication.
 3. Bổ sung hard cases: FaceID đúng nhưng bị thao túng; viện phí thật; dò ngưỡng né kiểm soát; một tin có nhiều ý định; dấu hiệu ATO; người thân nhắn thay; câu mơ hồ về rút tiền.
 4. Tách train/validation/test theo người dùng và `scenario_family_id`; giữ một tập test độc lập, không dùng để chỉnh prompt/rule.
@@ -91,4 +85,3 @@ python -m unittest discover -s tests -v
 - **Chủ sở hữu:** Nhóm DTMD / Track E3 (điền tên người chịu trách nhiệm dữ liệu trước khi dùng ngoài nhóm).
 - **Người rà soát nghiệp vụ và phê duyệt nhãn:** Chưa ghi nhận.
 - **Lịch sử:** v2.0 — lập data card theo pipeline E3 v2, ghi nhận nguồn synthetic, số lượng dataset, lineage, giới hạn adapter và các mâu thuẫn ngưỡng trong rulebase.
-- **Lịch sử:** v2.1 — ghi nguồn khảo sát, cách chuyển thể và phạm vi benchmark CLI.
