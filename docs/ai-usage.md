@@ -9,10 +9,10 @@ README của nhóm có mục "Dùng AI vào việc gì" (2–3 dòng, bắt bu�
 | Code bản chạy thử | ChatGPT | Hỗ trợ viết AI Core, tích hợp API và Data Pipeline, sửa lỗi | Kiểm tra code, chạy 120/120 test đạt, kiểm thử thực tế | Bùi Nguyên Dũng |
 | Prompt / thiết kế lời gọi mô hình | ChatGPT | Hỗ trợ thiết kế prompt phân loại và giới hạn quyền Agent | Kiểm tra kết quả phân loại và hành vi an toàn | Bùi Nguyên Dũng |
 | Đào data (viết script đếm, gợi ý nhãn) | | | Kiểm tay \_\_ dòng, khớp \_\_ | |
-| Rà câu hỏi phỏng vấn / khảo sát | | Chỉ rà câu dẫn dắt | | |
+| Rà câu hỏi phỏng vấn / khảo sát | ChatGPT / Antigravity | Chỉ rà câu dẫn dắt, cấu trúc bảng hỏi hành vi và tổng hợp thống kê từ `results.csv` | Tự thiết kế nội dung 14 câu khảo sát & trực tiếp phỏng vấn P1–P3; kiểm tay 21/21 dòng khảo sát | Nguyễn Khánh Duy |
 | Viết câu thử (benchmark) | | | Mỗi câu thử có `source`; câu thử AI viết được ghi rõ | |
 | Sinh data `synthetic` (nếu có) | | | Seed \_\_ · kiểm tay \_\_ dòng | |
 | Chấm cột `pass` bằng LLM (nếu có) | | | Kiểm tra thủ công \_\_ câu thử, khớp **/** | |
-| Slide, văn bản | | | | |
+| Slide, văn bản | ChatGPT / Antigravity | Hỗ trợ chuẩn hóa định dạng Markdown `canvas.md`, `spec.md` (nghiệp vụ), `slides/outline.md` theo khung rubric | Kiểm tra chéo mọi con số, trích dẫn nguyên văn và quyết định nghiệp vụ E3 | Nguyễn Khánh Duy |
 
 **Không dùng AI để:** tạo người được phỏng vấn, trích dẫn, câu trả lời khảo sát; sửa kết quả các lượt đã chạy (`eval/run-*.csv`, `cost/simulate-*.csv`, `traces/`).

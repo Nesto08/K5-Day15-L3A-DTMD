@@ -23,8 +23,8 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
   - *Vì sao chưa bỏ:* Khung Chat hỗ trợ trong app là kênh chính thức và miễn phí duy nhất gắn liền với giao dịch đang bị tạm giữ trên ví.
 - **Pain (KHÔNG chữ AI):** Chủ ví điện tử cá nhân — đang cần chuyển một khoản tiền nhưng giao dịch vừa bị hệ thống tạm chặn — vướng ở chỗ khi nhắn vào khung chat hỗ trợ thì chỉ nhận được thông báo mẫu rập khuôn không rõ lý do và phải chờ nhân viên trực quá lâu — hậu quả là người cần chuyển gấp thật bị lỡ việc khẩn cấp và mất lòng tin, trong khi nạn nhân đang bị kẻ gian hối thúc (APP Scam) lại nài nỉ mở khóa hoặc tìm cách lách chặn khiến tiền chuyển đi mất trắng trong vài giây.
 - **Bằng chứng — số chính + kết luận (chi tiết: `evidence/summary.md`):**
-  - *Khảo sát (`n = 21` người dùng ví/ngân hàng ngoài nhóm — `evidence/survey/results.csv`):* `15/21 (71,4%)` bản thân hoặc người thân từng gặp giao dịch bị tạm chặn; `17/21 (81,0%)` khó chịu nhất vì chatbot trả lời chung chung không đúng vấn đề; `12/21 (57,1%)` từng bị trễ hạn thanh toán/công việc; `19/21 (90,5%)` đồng ý AI phải giữ lệnh chặn khi có dấu hiệu lừa đảo dù người dùng đòi mở khóa. Kết luận: Giả thuyết ở `evidence/hypothesis.md` **ĐÚNG**.
-  - *Nguồn kiểm chéo trước CP3:* Sẽ bổ sung đào review công khai (`evidence/data-mining.md`) và phỏng vấn sâu (`evidence/interviews/`).
+  - *Nguồn 1 — Khảo sát (`n = 21` người dùng ví/ngân hàng ngoài nhóm — `evidence/survey/results.csv`):* `15/21 (71,4%)` bản thân hoặc người thân từng gặp giao dịch bị tạm chặn; `17/21 (81,0%)` khó chịu nhất vì chatbot trả lời chung chung không đúng vấn đề; `12/21 (57,1%)` từng bị trễ hạn thanh toán/công việc; `18/21 (85,7%)` chỉ chấp nhận trả lời tối đa 1–3 câu hỏi xác minh; `19/21 (90,5%)` đồng ý AI phải giữ lệnh chặn khi có dấu hiệu lừa đảo dù người dùng đòi mở khóa.
+  - *Nguồn 2 kiểm chéo — Phỏng vấn sâu (`3/3 người` ngoài nhóm thuộc 3 persona: Sinh viên `P1`, Nhân viên văn phòng `P2`, Chủ shop online `P3` — `evidence/interviews/P1..P3.md`):* Cả `3/3 người` gặp tình trạng giao dịch bị giữ kiểm tra `1–3 lần/tháng`, mỗi lần mất **15–30 phút** (`P1`: ~20 phút, `P2`: 15–20 phút, `P3`: ~30 phút) vì không dám tự chuyển lại (sợ trừ tiền 2 lần), bị chatbot dẫn vào menu tĩnh vô bổ và khi chuyển sang nhân viên thì phải khai lại số tài khoản/số tiền/thời gian từ đầu. Kết luận: Giả thuyết ở `evidence/hypothesis.md` **ĐÚNG** trên cả hai nguồn.
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 
@@ -34,7 +34,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
 | **E2 · Cảnh báo sắp vượt ngân sách & gợi ý cắt giảm** | ~5.000 người duy trì đặt ngân sách *(tự ước tính)* | ~4 lần/tháng (khi chạm ngưỡng nhóm chi) | ~10 phút cân đối lại chi tiêu; dễ bị người dùng tắt thông báo nếu thấy phiền | ~200.000 phút/tháng (~3.333 giờ) | Kịp (10h) | Không |
 | **E3 · Hỗ trợ khi giao dịch nghi lừa đảo bị tạm chặn** | ~10.000 ca giao dịch bị tạm chặn/tháng trên tập 1 triệu người dùng ví tích cực (tỷ lệ chặn 1% *(tự ước tính)*) | 1–1,5 lần/tháng trên mỗi người gặp sự cố | **Với người gấp thật:** mất ~15 phút khách chờ bức xúc + ~10 phút giờ công Tư vấn viên tra cứu/ca.<br>**Với nạn nhân APP Scam/ATO:** nguy cơ mất trắng **5–20 triệu ₫/ca** trong vài giây nếu mở chặn sai | **~300.000 phút/tháng** (5.000 giờ chờ của khách + giờ công CSKH) **+ Ngăn chặn thiệt hại hàng trăm triệu ₫/tháng** do lừa đảo chuyển tiền | Kịp (10h, kế thừa tập luật `T01–T04` & `R01–R07`) | **CHỌN** |
 
-- **Impact / tháng** của hướng chọn (E3) = **10.000 người gặp sự cố/tháng** × **1,2 lần/tháng** × **25 phút/lần** (~15 phút thời gian chờ của khách + ~10 phút giờ công Tư vấn viên tra cứu thủ công) = **300.000 phút/tháng (5.000 giờ/tháng)**, đồng thời bảo vệ trực tiếp dòng tiền không thể đảo ngược ở các ca APP Scam / ATO — nguồn từng thừa số: Quy mô tập khách hàng mục tiêu 1 triệu MAU với tỷ lệ giao dịch chạm cờ kiểm tra 1% *(tự ước tính)*; thời gian chờ và xử lý mỗi ca lấy từ khảo sát/phỏng vấn người dùng trong `evidence/summary.md`.
+- **Impact / tháng** của hướng chọn (E3) = **10.000 người gặp sự cố/tháng** × **1,2 lần/tháng** × **25 phút/lần** (~15 phút thời gian chờ của khách + ~10 phút giờ công Tư vấn viên tra cứu thủ công) = **300.000 phút/tháng (5.000 giờ/tháng)**, đồng thời bảo vệ trực tiếp dòng tiền không thể đảo ngược ở các ca APP Scam / ATO — nguồn từng thừa số: Quy mô tập khách hàng mục tiêu 1 triệu MAU với tỷ lệ giao dịch chạm cờ kiểm tra 1% *(tự ước tính)*; tần suất `1–3 lần/tháng` và tổng thời gian mất mỗi lần `15–30 phút/ca` lấy trực tiếp từ biên bản phỏng vấn `P1, P2, P3` (`evidence/interviews/`) và khảo sát `n = 21` trong `evidence/summary.md` (tách thành ~15 phút khách chờ + ~10 phút công Tư vấn viên *(tự ước tính)*).
 - **Hướng ĐÃ LOẠI + vì sao (giữ lại, đừng xoá):**
   - *Loại E1 (Giải thích sao kê):* Tần suất người dùng thực sự mở sao kê hỏi chỉ 1–2 lần cuối tháng; nếu sai chỉ lệch số thống kê, mức độ cấp bách thấp hơn nhiều so với lúc tiền đang bị treo.
   - *Loại E2 (Cảnh báo vượt ngân sách):* Ít người dùng ví duy trì thiết lập ngân sách hàng tháng; quyết định của AI chỉ dừng ở việc gợi ý tiết kiệm, không giải quyết bài toán sống còn về phân quyền hành động có/không đảo ngược được như E3.
@@ -282,17 +282,17 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
   | Tầng ví điện tử | Hồ sơ giao dịch sandbox từ file JSON, không kết nối Core Banking. |
   | Phát hiện giao dịch bất thường | Các cờ T01–T04 được cung cấp sẵn, không triển khai lại hệ thống chấm điểm giao dịch. |
   | Xác thực FaceID | Trường dữ liệu mô phỏng, không kết nối hệ thống sinh trắc học thật. |
-  | Rulebase | Dự kiến triển khai logic Python thực thi trên dữ liệu sandbox. |
-  | Retrieval / RAG | Dự kiến truy xuất ca lừa đảo từ JSON theo mã luật, không sử dụng embedding hoặc Vector Database. Nguồn ca lừa đảo phải được ghi rõ. |
+  | Rulebase | Đã triển khai logic Python xác định trong `codebase/rulebase.py`, thực thi trên dữ liệu sandbox. |
+  | Retrieval / RAG | Đã triển khai hàm `search_scam_cases` trong `codebase/tools.py` & `codebase/data_adapter.py`, truy xuất ca lừa đảo từ JSON/JSONL theo mã luật. |
   | `get_held_transaction` | Đọc hồ sơ giao dịch sandbox, không truy cập tài khoản thật. |
   | `request_verification` | Hiển thị câu hỏi xác minh ngữ cảnh trên giao diện chat, không thực hiện xác thực danh tính thật. |
   | `hold_transaction` | Duy trì trạng thái tạm giữ trong sandbox, không tác động tới tiền thật. |
   | `lock_wallet` | Tạo bản nháp yêu cầu khóa bảo vệ, không thực sự khóa ví. |
   | `handoff_to_agent` | Tạo ticket và Handoff Summary mô phỏng, không kết nối tổng đài hoặc tư vấn viên thật. |
-  | Hủy giao dịch | Mô phỏng quyền chủ động yêu cầu hủy giao dịch của người dùng trên giao diện. |
-  | LLM | Đã kiểm chứng chạy thông luồng Mock Mode (`MODEL_PROVIDER=fake`) qua `python run.py` tại CP2; tích hợp LLM thật cho quyết định phân loại tại CP3. |
-  | Policy Engine | Dự kiến triển khai logic Python kiểm soát quyền thực thi công cụ độc lập với LLM. |
-  | Audit Log | Khung `tracing.py` đã ghi nhận lượt gọi model, công cụ, token usage và latency khi chạy `python run.py`. |
+  | Hủy giao dịch | Mô phỏng quyền chủ động yêu cầu hủy giao dịch của người dùng trên giao diện (`vi_an_toan_mvp_v2.html`). |
+  | LLM | Đã nối OpenAI Chat Completions API thật trong `codebase/ai.py` (kèm chế độ `fake` cho kiểm thử local) và tích hợp luồng phân loại JSON có kiểm tra schema trong `codebase/agent.py`. |
+  | Policy Engine | Đã triển khai logic Python trong `codebase/policy.py` & `codebase/guardrails.py` kiểm soát quyền thực thi công cụ độc lập với LLM (vượt qua 120/120 unit tests trong `tests/`). |
+  | Audit Log | Khung `tracing.py` ghi nhận đầy đủ lượt gọi model, công cụ, ghi chú guardrails/policy, token usage và latency. |
 
   Toàn bộ hành động tài chính trong MVP được thực hiện trên môi trường sandbox. Không phát sinh giao dịch tiền thật, không mở chặn giao dịch thật và không khóa ví thật.
 
@@ -367,7 +367,8 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): Không dù
 
 | Thời điểm | Đổi gì | Vì sao (trỏ về câu thử / lỗi / bằng chứng nào) |
 |---|---|---|
-|  |  |  |
+| 28/11 01:00 | Hoàn thiện AI Core (`codebase/agent.py`, `ai.py`, `tools.py`, `rulebase.py`, `policy.py`, `guardrails.py`, `data_adapter.py`) + giao diện `vi_an_toan_mvp_v2.html` và 120/120 unit tests | Hiện thực hóa đầy đủ kiến trúc §4 và 10 Hard Invariants để chạy Lượt 1 (`eval/run-1.csv`) với LLM thật trước CP3 |
+| 28/11 01:45 | Bổ sung nguồn bằng chứng thứ 2 (`evidence/interviews/P1.md, P2.md, P3.md`) vào `evidence/summary.md`, `canvas.md` và `spec.md` §1–§2 | Kiểm chéo kết quả khảo sát `n = 21` bằng 3 cuộc phỏng vấn sâu (mất `15–30 phút/ca`, `1–3 lần/tháng`, bức xúc vì phải kể lại từ đầu khi chuyển nhân viên) |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 
