@@ -1,0 +1,21 @@
+
+[
+    {
+        "case_id": "MOCK-R03",
+        "rule_ids": ["R03", "R04"],
+        "title": "Mao danh co quan yeu cau chuyen tien",
+        "description": "Doi tuong mao danh co quan va yeu cau chuyen tien de xac minh.",
+        "recommendation": "Dung giao dich va xac minh qua kenh chinh thuc.",
+        "source": null,
+        "is_synthetic": true
+    },
+    {
+        "case_id": "MOCK-R06",
+        "rule_ids": ["R06", "R16", "R20"],
+        "title": "Yeu cau cung cap thong tin bao mat",
+        "description": "Doi tuong yeu cau OTP hoac cai ung dung dieu khien tu xa.",
+        "recommendation": "Khong cung cap ma bi mat va lien he bo phan bao mat.",
+        "source": null,
+        "is_synthetic": true
+    }
+]
