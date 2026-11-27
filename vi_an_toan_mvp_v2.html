@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ví An Toàn — Hỗ trợ giao dịch</title>
+<style>
+:root{
+  --bg:#f4f7f6;--panel:#fff;--ink:#172b27;--muted:#64756f;--line:#e1e9e5;
+  --green:#087b5b;--green2:#e8f5ef;--amber:#a96508;--amberbg:#fff5df;
+  --red:#b42332;--redbg:#fff0f0;--blue:#245f9e;--bluebg:#edf5ff;
+  --shadow:0 8px 30px #183b2b0c;--input-bg:#fff;--hover:#edf2ef;--backdrop:rgba(10,20,16,.55);
+  color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#0f1713;--panel:#162019;--ink:#eaf2ee;--muted:#93a39c;--line:#273229;
+  --green:#2fcb94;--green2:#13332a;--amber:#ffb648;--amberbg:#3a2c12;
+  --red:#ff6b73;--redbg:#3a1518;--blue:#6fb0ff;--bluebg:#102a42;
+  --shadow:0 8px 30px rgba(0,0,0,.45);--input-bg:#101a14;--hover:#1c2920;--backdrop:rgba(0,0,0,.7);
+  color-scheme:dark;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1713;--panel:#162019;--ink:#eaf2ee;--muted:#93a39c;--line:#273229;
+    --green:#2fcb94;--green2:#13332a;--amber:#ffb648;--amberbg:#3a2c12;
+    --red:#ff6b73;--redbg:#3a1518;--blue:#6fb0ff;--bluebg:#102a42;
+    --shadow:0 8px 30px rgba(0,0,0,.45);--input-bg:#101a14;--hover:#1c2920;--backdrop:rgba(0,0,0,.7);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;transition:background .2s,color .2s}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;font-weight:650}
+.app{max-width:1180px;margin:auto;padding:22px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:13px;background:var(--green);color:#06281e;display:grid;place-items:center;font-size:22px;font-weight:700}
+.brand strong{display:block;font-size:17px}
+.brand small,.muted{color:var(--muted)}
+.topRight{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:8px;background:var(--hover);padding:5px;border-radius:12px}
+.tabs button{background:transparent;color:var(--muted);padding:9px 13px}
+.tabs button.active{background:var(--panel);color:var(--ink);box-shadow:0 1px 4px #183b2b14}
+.iconbtn{background:var(--panel);border:1px solid var(--line)!important;width:42px;height:42px;padding:0;border-radius:11px;display:grid;place-items:center;font-size:18px}
+.iconbtn:hover{background:var(--hover)}
+.userchip{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);padding:6px 6px 6px 12px;border-radius:999px;font-size:13px}
+.userchip .role{font-weight:700;color:var(--green)}
+.userchip button{background:var(--hover);padding:6px 11px;font-size:12px;border-radius:999px}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(290px,.85fr);gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:var(--shadow)}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:23px;margin-bottom:5px}
+h2{font-size:18px;margin-bottom:14px}
+h3{font-size:15px;margin-bottom:8px}
+.sub{color:var(--muted);margin-bottom:18px}
+.status{display:flex;align-items:flex-start;gap:11px;padding:14px;border-radius:13px;background:var(--amberbg);color:var(--amber);margin-bottom:16px}
+.status b{display:block;color:var(--ink)}
+.chatlog{display:flex;flex-direction:column;gap:12px;min-height:175px;max-height:330px;overflow:auto;padding:4px 0 14px}
+.bubble{max-width:88%;padding:12px 14px;border-radius:14px;background:var(--hover)}
+.bubble.user{align-self:flex-end;background:var(--green2)}
+.bubble small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}
+.composer textarea{width:100%;min-height:90px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px;outline:none;background:var(--input-bg)}
+.composer textarea:focus,input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px #087b5b18}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.primary{background:var(--green);color:#06281e}
+.secondary{background:var(--hover);color:var(--ink)}
+.danger{background:var(--redbg);color:var(--red)}
+.full{width:100%;margin-top:10px}
+.scenarios{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 15px}
+.scenario{background:var(--panel);border:1px solid var(--line);text-align:left;color:var(--ink);font-weight:550;padding:10px;border-radius:11px}
+.scenario.selected{border-color:var(--green);background:var(--green2);color:var(--green)}
+.decision{border:1px solid var(--line);border-radius:13px;padding:15px;margin-top:14px}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700}
+.pill.red{background:var(--redbg);color:var(--red)}
+.pill.amber{background:var(--amberbg);color:var(--amber)}
+.pill.blue{background:var(--bluebg);color:var(--blue)}
+.pill.green{background:var(--green2);color:var(--green)}
+.decision h3{font-size:18px;margin:8px 0}
+.rule{padding:10px 0;border-top:1px solid var(--line)}
+.rule:first-of-type{border-top:0}
+.rule b{display:block}
+.small{font-size:12px;color:var(--muted)}
+.notice{font-size:12px;color:var(--muted);background:var(--hover);padding:10px;border-radius:10px;margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px}
+.stat small{color:var(--muted)}
+.stat strong{display:block;font-size:27px;margin-top:3px}
+.queue{width:100%;border-collapse:collapse}
+.queue th,.queue td{text-align:left;padding:12px 9px;border-bottom:1px solid var(--line);font-size:13px}
+.queue th{color:var(--muted);font-weight:600}
+.queue tr:last-child td{border-bottom:0}
+.queue button{padding:7px 10px;font-size:12px}
+.hidden{display:none!important}
+.field{display:grid;gap:5px;margin:10px 0}
+.field input,.field select{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--input-bg)}
+.footer{text-align:center;color:var(--muted);font-size:12px;padding:20px 0}
+
+/* ===== Login screen ===== */
+#loginScreen{min-height:100vh;display:grid;place-items:center;padding:20px}
+.loginWrap{width:100%;max-width:420px}
+.loginBrand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:22px;text-align:center}
+.loginBrand .logo{width:54px;height:54px;font-size:26px;border-radius:16px}
+.loginCard{background:var(--panel);border:1px solid var(--line);border-radius:19px;padding:28px;box-shadow:var(--shadow)}
+.roleSwitch{display:flex;gap:8px;background:var(--hover);padding:5px;border-radius:12px;margin-bottom:18px}
+.roleSwitch button{flex:1;background:transparent;color:var(--muted);padding:10px}
+.roleSwitch button.active{background:var(--panel);color:var(--ink);box-shadow:0 1px 4px #183b2b14}
+.loginError{display:flex;gap:9px;align-items:flex-start;background:var(--redbg);color:var(--red);padding:11px 13px;border-radius:11px;font-size:13px;margin:4px 0 2px}
+.demoBox{background:var(--hover);border:1px dashed var(--line);border-radius:12px;padding:12px;font-size:12px;color:var(--muted);margin-top:16px;line-height:1.7}
+.demoBox code{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink);font-weight:600}
+label.fl{font-size:13px;font-weight:650;display:block;margin-bottom:5px}
+
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .app{padding:14px}
+  .top{align-items:flex-start;flex-direction:column}
+  .tabs{width:100%}
+  .tabs button{flex:1}
+  .card{padding:16px}
+  .queue th:nth-child(3),.queue td:nth-child(3){display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="loginScreen">
+ <div class="loginWrap">
+  <div class="loginBrand"><div class="logo">◈</div><div><strong style="font-size:19px">VÍ AN TOÀN</strong><div class="muted" style="font-size:13px">AI Smart Support · MVP 0.2</div></div></div>
+  <div class="loginCard">
+   <div class="roleSwitch" role="tablist">
+    <button class="active" data-role="user" type="button">Người dùng</button>
+    <button data-role="admin" type="button">Tư vấn viên</button>
+   </div>
+   <h2 id="loginTitle" style="margin-bottom:4px">Đăng nhập — Người dùng</h2>
+   <p class="small" style="margin-bottom:16px">Nhập tài khoản để vào khung chat hỗ trợ giao dịch.</p>
+   <form id="loginForm">
+    <div class="field"><label class="fl" for="loginUser">Tài khoản</label><input id="loginUser" autocomplete="username" placeholder="user"></div>
+    <div class="field"><label class="fl" for="loginPass">Mật khẩu</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••"></div>
+    <div id="loginErrorBox"></div>
+    <button class="primary full" type="submit">Đăng nhập →</button>
+   </form>
+   <div class="demoBox">
+    <b style="color:var(--ink)">Tài khoản demo (dữ liệu dựng, không phải hệ thống thật):</b><br>
+    Người dùng: <code>user</code> / <code>user</code><br>
+    Tư vấn viên: <code>admin</code> / <code>admin</code>
+   </div>
+  </div>
+  <div class="footer">Prototype phục vụ kiểm thử luồng · Không kết nối hệ thống thanh toán thật</div>
+ </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div class="app hidden" id="mainApp">
+<header class="top">
+ <div class="brand"><div class="logo">◈</div><div><strong>VÍ AN TOÀN</strong><small>AI Smart Support · MVP 0.2</small></div></div>
+ <div class="topRight">
+  <nav class="tabs" aria-label="Điều hướng" id="tabNav"></nav>
+  <button class="iconbtn" id="themeToggle" type="button" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng/tối">🌙</button>
+  <div class="userchip"><span>👤 <span class="role" id="whoami">Người dùng</span></span><button id="logoutBtn" type="button">Đăng xuất</button></div>
+ </div>
+</header>
+
+<section id="customer">
+ <div class="layout">
+  <main class="card">
+   <h1>Trợ lý hỗ trợ giao dịch</h1><p class="sub">Trao đổi với trợ lý để hiểu trạng thái giao dịch và nhận hướng dẫn an toàn.</p>
+   <div class="status"><span>⏳</span><div><b>Giao dịch đang tạm giữ</b><span class="small">Mã mô phỏng: TX-804291 · 8.500.000 ₫</span><br><span class="small">Tiền chưa được chuyển đến người nhận.</span></div></div>
+   <div class="chatlog" id="chatlog" aria-live="polite">
+    <div class="bubble"><small>TRỢ LÝ AI</small>Xin chào. Tôi có thể giúp kiểm tra giao dịch đang tạm giữ. Bạn đang gặp tình huống nào?</div>
+   </div>
+   <div class="composer"><label for="message"><b>Nội dung cần hỗ trợ</b></label><textarea id="message" placeholder="Mô tả điều đang xảy ra...">Em đang đứng ở quầy viện phí, cần chuyển tiền gấp nhưng giao dịch bị tạm chặn.</textarea>
+    <div class="row" style="justify-content:space-between;margin-top:9px"><span class="small">Không nhập mật khẩu, mã OTP hoặc thông tin thẻ.</span><button class="primary" id="analyze">Phân tích tin nhắn →</button></div>
+   </div>
+  </main>
+  <aside class="card">
+   <h2>Chọn tình huống thử nghiệm</h2><p class="small">Chọn một ca để nạp nội dung mẫu vào khung chat.</p>
+   <div class="scenarios" id="scenarios"></div>
+   <div id="result"><div class="notice">Kết quả phân loại và phương án xử lý sẽ hiển thị tại đây sau khi phân tích.</div></div>
+  </aside>
+ </div>
+</section>
+
+<section id="agent" class="hidden">
+ <h1>Fraud Control Center</h1><p class="sub">Bảng điều phối các yêu cầu cần xác minh. Dữ liệu hoàn toàn giả lập.</p>
+ <div class="stats">
+  <div class="stat"><small>Đang tạm giữ</small><strong>128</strong></div><div class="stat"><small>Chờ tư vấn viên</small><strong>24</strong></div><div class="stat"><small>Rủi ro cao</small><strong style="color:var(--red)">17</strong></div><div class="stat"><small>Chờ xác minh</small><strong>42</strong></div>
+ </div>
+ <div class="card"><div class="row" style="justify-content:space-between"><h2>Hàng đợi xử lý</h2><span class="pill amber">3 ca mẫu</span></div>
+ <div style="overflow-x:auto"><table class="queue"><thead><tr><th>Mã ca</th><th>Tình huống</th><th>Thời gian</th><th>Mức độ</th><th>Thao tác</th></tr></thead><tbody id="queueBody"></tbody></table></div>
+ <div id="caseDetail" class="decision hidden"></div></div>
+</section>
+
+<section id="policy" class="hidden">
+ <h1>Quy tắc quyết định AI</h1><p class="sub">Nguyên tắc mặc định: bảo toàn tiền, không kết luận chỉ từ một tín hiệu, không bỏ mặc nhu cầu khẩn cấp.</p>
+ <div class="card">
+  <div class="rule"><b>1. Bị giục chuyển tiền / dò ngưỡng né kiểm soát</b><span class="small">Giữ giao dịch; không cung cấp ngưỡng né kiểm soát; chuyển tư vấn viên khi có dấu hiệu thao túng.</span></div>
+  <div class="rule"><b>2. Nhu cầu khẩn cấp hợp lệ</b><span class="small">Không tự động bỏ chặn. Ưu tiên xác minh người nhận và mục đích, đồng thời đưa vào hàng đợi ưu tiên.</span></div>
+  <div class="rule"><b>3. Nghi bị chiếm tài khoản</b><span class="small">Giữ giao dịch, kích hoạt quy trình bảo vệ tài khoản và chuyển bộ phận bảo mật.</span></div>
+  <div class="rule"><b>4. Người thân nhắn thay chủ ví</b><span class="small">Không thay đổi tài khoản hoặc giải ngân theo yêu cầu của người chưa được xác minh là chủ ví/đại diện hợp lệ.</span></div>
+  <div class="rule"><b>5. Một tin nhắn có nhiều yêu cầu</b><span class="small">Tách từng ý định. Khóa thẻ, tra soát và hoàn tiền là các tác vụ riêng, cần quyền hạn và xác minh riêng.</span></div>
+  <div class="rule"><b>6. Xác thực khuôn mặt thành công</b><span class="small">Không coi đây là bằng chứng đủ để loại trừ lừa đảo hoặc cưỡng ép. Đánh giá cả ngữ cảnh, thiết bị, người nhận và dấu hiệu thao túng.</span></div>
+  <div class="notice"><b>Giới hạn MVP:</b> bộ phân loại bên dưới là luật từ khóa minh họa, chưa phải mô hình ML hay hệ thống phát hiện gian lận đã được kiểm định. Các thao tác khóa, mở chặn, hoàn tiền và chuyển tiền không được thực thi.</div>
+ </div>
+</section>
+<div class="footer">Prototype phục vụ kiểm thử luồng · Không kết nối hệ thống thanh toán thật · Không sử dụng làm quyết định gian lận trong production</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* ===== Theme (dark/light) ===== */
+function applyTheme(t){
+ document.documentElement.setAttribute('data-theme',t);
+ $('#themeToggle') && ($('#themeToggle').textContent = t==='dark' ? '☀️' : '🌙');
+}
+function initTheme(){
+ let saved=null;
+ try{saved=window.localStorage.getItem('vat_theme')}catch(e){}
+ if(saved==='dark'||saved==='light'){applyTheme(saved);return}
+ const prefersDark=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+ applyTheme(prefersDark?'dark':'light');
+}
+function toggleTheme(){
+ const cur=document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+ const next=cur==='dark'?'light':'dark';
+ applyTheme(next);
+ try{window.localStorage.setItem('vat_theme',next)}catch(e){}
+}
+initTheme();
+
+/* ===== Login / roles ===== */
+const ACCOUNTS={
+ user:{username:'user',password:'user',label:'Người dùng',tabs:['customer','policy']},
+ admin:{username:'admin',password:'admin',label:'Tư vấn viên',tabs:['agent','policy']}
+};
+let activeRole='user';
+let currentUser=null;
+
+function selectLoginRole(role){
+ activeRole=role;
+ document.querySelectorAll('.roleSwitch button').forEach(b=>b.classList.toggle('active',b.dataset.role===role));
+ $('#loginTitle').textContent = 'Đăng nhập — ' + ACCOUNTS[role].label;
+ $('#loginUser').value='';$('#loginPass').value='';
+ $('#loginErrorBox').innerHTML='';
+ $('#loginUser').focus();
+}
+document.querySelectorAll('.roleSwitch button').forEach(b=>b.onclick=()=>selectLoginRole(b.dataset.role));
+
+function doLogin(e){
+ e.preventDefault();
+ const u=$('#loginUser').value.trim(),p=$('#loginPass').value;
+ const acc=ACCOUNTS[activeRole];
+ if(u===acc.username && p===acc.password){
+  currentUser={role:activeRole,label:acc.label};
+  $('#loginErrorBox').innerHTML='';
+  enterApp();
+ }else{
+  $('#loginErrorBox').innerHTML='<div class="loginError">⚠️ <span>Sai tài khoản hoặc mật khẩu cho vai trò '+acc.label+'. Vui lòng kiểm tra lại (dữ liệu demo).</span></div>';
+ }
+}
+$('#loginForm').addEventListener('submit',doLogin);
+
+function enterApp(){
+ $('#loginScreen').classList.add('hidden');
+ $('#mainApp').classList.remove('hidden');
+ $('#whoami').textContent=currentUser.label;
+ buildTabsForRole();
+}
+function logout(){
+ currentUser=null;
+ $('#mainApp').classList.add('hidden');
+ $('#loginScreen').classList.remove('hidden');
+ selectLoginRole('user');
+}
+$('#logoutBtn').onclick=logout;
+$('#themeToggle').onclick=toggleTheme;
+
+const TAB_LABELS={customer:'Người dùng',agent:'Tư vấn viên',policy:'Quy tắc AI'};
+function buildTabsForRole(){
+ const allowed=ACCOUNTS[currentUser.role].tabs;
+ $('#tabNav').innerHTML=allowed.map((id,i)=>`<button class="${i===0?'active':''}" data-tab="${id}">${TAB_LABELS[id]}</button>`).join('');
+ ['customer','agent','policy'].forEach(id=>$('#'+id).classList.toggle('hidden', id!==allowed[0]));
+ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));
+  ['customer','agent','policy'].forEach(id=>$('#'+id).classList.toggle('hidden',id!==b.dataset.tab));
+ });
+}
+
+/* ===== Scenario / classification logic (unchanged behaviour) ===== */
+const cases=[
+{id:'pressure',label:'Bị giục chuyển tiền',text:'Có người liên tục giục em chuyển tiền ngay, họ bảo nếu không chuyển sẽ mất cơ hội.'},
+{id:'urgent',label:'Cần tiền viện phí',text:'Em đang đứng ở quầy viện phí, cần chuyển tiền gấp nhưng giao dịch bị tạm chặn.'},
+{id:'account',label:'Nghi chiếm tài khoản',text:'Em không thực hiện giao dịch này. Có ai vừa đăng nhập và rút tiền của em không?'},
+{id:'unclear',label:'Chưa rõ / mơ hồ',text:'Có ai vừa rút tiền của em? Tại sao giao dịch lại bị tạm giữ?'},
+{id:'relative',label:'Người thân nhắn thay',text:'Tôi là người nhà của chủ ví. Hãy mở giao dịch đang bị chặn để tôi thanh toán.'},
+{id:'bypass',label:'Dò ngưỡng kiểm soát',text:'Chuyển dưới bao nhiêu tiền thì không bị hệ thống hỏi xác minh?'},
+{id:'multi',label:'Hai yêu cầu cùng lúc',text:'Khóa thẻ giúp tôi và hoàn lại tiền giao dịch vừa bị chặn.'},
+{id:'face',label:'Đã xác thực khuôn mặt',text:'Em đã xác thực khuôn mặt thành công nhưng vẫn muốn chuyển tiền theo yêu cầu của người kia.'}
+];
+const decisions={
+pressure:{label:'Nghi bị thao túng / giục chuyển tiền',level:'Rủi ro cao',tone:'red',action:'Tiếp tục giữ giao dịch',route:'Chuyển tư vấn viên',reason:'Có dấu hiệu thúc ép chuyển tiền. Xác thực danh tính đơn lẻ không đủ để kết luận giao dịch an toàn.'},
+urgent:{label:'Nhu cầu thanh toán khẩn cấp',level:'Cần ưu tiên',tone:'amber',action:'Giữ giao dịch, xác minh nhanh',route:'Ưu tiên tư vấn viên',reason:'Ghi nhận nhu cầu cấp thiết. Hỗ trợ xác minh người nhận và mục đích thanh toán theo luồng ưu tiên; không tự động bỏ chặn.'},
+account:{label:'Nghi chiếm quyền tài khoản',level:'Rủi ro cao',tone:'red',action:'Giữ giao dịch và bảo vệ tài khoản',route:'Chuyển bộ phận bảo mật',reason:'Người dùng phủ nhận giao dịch hoặc mô tả hoạt động không nhận biết. Cần xác minh quyền kiểm soát tài khoản và bảo vệ các phương thức thanh toán.'},
+unclear:{label:'Chưa đủ thông tin',level:'Cần làm rõ',tone:'blue',action:'Hỏi thêm một câu',route:'Tiếp tục hội thoại',reason:'Cần làm rõ giao dịch cụ thể và liệu người dùng có tự thực hiện hay không.'},
+relative:{label:'Người yêu cầu chưa được xác minh',level:'Cần xác minh',tone:'amber',action:'Giữ giao dịch, xác minh chủ ví',route:'Chuyển tư vấn viên',reason:'Người nhắn có thể không phải chủ ví. Không mở chặn hoặc thay đổi tài khoản theo yêu cầu của bên thứ ba.'},
+bypass:{label:'Dò cách né kiểm soát',level:'Rủi ro cao',tone:'red',action:'Không cung cấp ngưỡng né kiểm soát',route:'Giữ giao dịch và chuyển tư vấn viên',reason:'Không tiết lộ ngưỡng hoặc quy tắc có thể giúp né hệ thống. Chuyển đánh giá theo quy trình nội bộ.'},
+multi:{label:'Nhiều ý định trong một tin nhắn',level:'Cần xác minh',tone:'amber',action:'Tách yêu cầu, chưa thực thi',route:'Chuyển tư vấn viên',reason:'Khóa thẻ và hoàn tiền là hai tác vụ khác nhau. Xác minh và cấp quyền riêng cho từng tác vụ.'},
+face:{label:'Xác thực sinh trắc học nhưng có dấu hiệu thao túng',level:'Rủi ro cao',tone:'red',action:'Tiếp tục giữ giao dịch',route:'Chuyển tư vấn viên',reason:'Xác thực khuôn mặt chứng minh một yếu tố xác thực, không chứng minh người dùng không bị lừa hoặc cưỡng ép.'}
+};
+let selected='urgent',latest=null;
+function renderScenarios(){
+ $('#scenarios').innerHTML=cases.map(c=>`<button class="scenario ${c.id===selected?'selected':''}" data-id="${c.id}">${c.label}</button>`).join('');
+ document.querySelectorAll('.scenario').forEach(b=>b.onclick=()=>{selected=b.dataset.id;$('#message').value=cases.find(c=>c.id===selected).text;renderScenarios()});
+}
+function classify(text){
+ const t=text.toLowerCase();
+ if(/dưới bao nhiêu|né hệ thống|không bị.*xác minh|ngưỡng/.test(t))return 'bypass';
+ if(/khóa thẻ|khoa the/.test(t)&&/hoàn tiền|hoan tien|trả lại|refund/.test(t))return 'multi';
+ if(/người nhà|người thân|tôi là.*chủ ví|thay.*chủ ví/.test(t))return 'relative';
+ if(/khuôn mặt|khuon mat|sinh trắc/.test(t)&&/người kia|giục|yêu cầu.*chuyển|chuyen tien/.test(t))return 'face';
+ if(/không thực hiện|không phải tôi|không nhận ra|ai vừa.*rút|đăng nhập.*lạ|chiếm tài khoản/.test(t))return 'account';
+ if(/viện phí|cap cuu|cấp cứu|bệnh viện|quầy viện/.test(t))return 'urgent';
+ if(/giục|thúc ép|đe dọa|mất cơ hội|chuyển ngay|khẩn trương chuyển/.test(t))return 'pressure';
+ return 'unclear';
+}
+function analyze(){
+ const text=$('#message').value.trim();if(!text){alert('Vui lòng nhập nội dung cần hỗ trợ.');return}
+ const key=classify(text),d=decisions[key];latest={key,text,d,id:'TX-'+Math.floor(100000+Math.random()*899999)};
+ $('#chatlog').insertAdjacentHTML('beforeend',`<div class="bubble user"><small>BẠN</small>${escapeHtml(text)}</div><div class="bubble"><small>TRỢ LÝ AI · KẾT QUẢ MÔ PHỎNG</small>${d.action}. ${d.reason}</div>`);
+ $('#chatlog').scrollTop=$('#chatlog').scrollHeight;
+ $('#result').innerHTML=`<div class="decision"><span class="pill ${d.tone}">${d.level}</span><p class="small" style="margin:10px 0 2px">NHẬN DIỆN</p><b>${d.label}</b><h3>${d.action}</h3><p>${d.reason}</p><div class="rule"><b>Hướng xử lý</b>${d.route}</div><div class="notice">Đây là đề xuất của bộ phân loại luật minh họa. Giao dịch vẫn được giữ; chưa có hành động tài chính hoặc thay đổi tài khoản nào được thực hiện.</div><button class="secondary full" id="addQueue">Đưa ca mô phỏng vào hàng đợi tư vấn viên</button></div>`;
+ $('#addQueue').onclick=()=>{addQueue(latest);alert('Đã thêm ca mô phỏng vào hàng đợi.')};
+ renderScenarios();
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let queue=[
+{id:'CS-1024',title:'Nghi bị chiếm tài khoản',time:'1 phút trước',risk:'Cao',tone:'red',detail:'Khách phủ nhận giao dịch. Giữ giao dịch và chuyển bộ phận bảo mật.'},
+{id:'CS-1025',title:'Thanh toán viện phí khẩn cấp',time:'3 phút trước',risk:'Ưu tiên',tone:'amber',detail:'Xác minh người nhận và mục đích thanh toán theo luồng ưu tiên.'},
+{id:'CS-1026',title:'Khóa thẻ và yêu cầu hoàn tiền',time:'5 phút trước',risk:'Cần xác minh',tone:'amber',detail:'Tách hai yêu cầu, xác minh chủ ví và quyền thực hiện từng tác vụ.'}
+];
+function addQueue(item){queue.unshift({id:item.id,title:item.d.label,time:'Vừa thêm',risk:item.d.level,tone:item.d.tone,detail:item.d.reason}) ;renderQueue()}
+function renderQueue(){
+ $('#queueBody').innerHTML=queue.map((q,i)=>`<tr><td>${q.id}</td><td>${escapeHtml(q.title)}</td><td>${q.time}</td><td><span class="pill ${q.tone}">${q.risk}</span></td><td><button class="secondary" data-case="${i}">Xem ca</button></td></tr>`).join('');
+ document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{const q=queue[+b.dataset.case];$('#caseDetail').classList.remove('hidden');$('#caseDetail').innerHTML=`<div class="row" style="justify-content:space-between"><h3>${escapeHtml(q.title)}</h3><span class="pill ${q.tone}">${q.risk}</span></div><p class="small">Mã ca: ${q.id}</p><p>${escapeHtml(q.detail)}</p><div class="notice">MVP chỉ ghi nhận và hiển thị ca. Không có nút phê duyệt giải ngân, hoàn tiền hoặc mở chặn.</div>`});
+}
+$('#analyze').onclick=analyze;
+renderScenarios();renderQueue();
+</script>
+</body>
+</html>
