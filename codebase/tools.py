@@ -10,14 +10,21 @@ Công cụ có tác động ra ngoài: KHÔNG tự làm. Trả về bản nháp 
 Dữ liệu công cụ đọc (bài mẫu, thông báo mẫu, lịch…): để trong data/ và mô tả ở data/DATA_CARD.md.
 """
 
-import json
 from pathlib import Path
 from uuid import uuid4
 
 if __package__:
-    from .tracing import tool, TOOLS  # noqa: F401
+    from .tracing import tool, TOOLS
+    from .data_adapter import (
+        load_transactions,
+        load_scam_cases,
+    )
 else:
-    from tracing import tool, TOOLS  # noqa: F401
+    from tracing import tool, TOOLS
+    from data_adapter import (
+        load_transactions,
+        load_scam_cases,
+    )
 
 
 # ============================================================
@@ -30,34 +37,17 @@ DATA_DIR = ROOT_DIR / "data"
 
 
 # ============================================================
-# HÀM HỖ TRỢ ĐỌC DỮ LIỆU
+# HÀM HỖ TRỢ TRA CỨU DỮ LIỆU
 # ============================================================
 
-def _load_json(filename: str) -> list:
-    """Đọc dữ liệu JSON từ thư mục data/."""
-
-    path = DATA_DIR / filename
-
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Dataset not available: {filename}"
-        )
-
-    with path.open("r", encoding="utf-8") as file:
-        records = json.load(file)
-
-    if not isinstance(records, list):
-        raise ValueError(
-            f"{filename} must contain a JSON list"
-        )
-
-    return records
-
-
 def _find_held_transaction(tx_id: str) -> dict:
-    """Tra cứu nội bộ, không đăng ký thành công cụ."""
+    """Tra cứu nội bộ, không đăng ký thành công cụ.
 
-    records = _load_json("transactions.json")
+    Dữ liệu được đọc thông qua Data Adapter,
+    hỗ trợ JSONL của pipeline và JSON fixture kiểm thử.
+    """
+
+    records = load_transactions(DATA_DIR)
 
     for record in records:
         if record.get("tx_id") != tx_id:
@@ -257,7 +247,7 @@ def handoff_to_agent(
 def lock_wallet(user_id: str) -> dict:
     """Tạo bản nháp yêu cầu khóa bảo vệ ví khi nghi ngờ ATO.
 
-    Input: mã người dùng user_id (str).
+    Input: mã người dùng (str).
     Output: mã yêu cầu và trạng thái chờ phê duyệt (dict).
     Tác động ra ngoài: không; không khóa ví thật.
     """
@@ -286,13 +276,14 @@ def search_scam_cases(
     Input: danh sách mã luật R01–R07, R16, R20 (list),
            số kết quả tối đa (int).
     Output: danh sách ca tương đồng và nguồn dữ liệu (list).
-    Tác động ra ngoài: không; chỉ đọc dữ liệu JSON.
+    Tác động ra ngoài: không; chỉ đọc dữ liệu qua Data Adapter.
     """
 
     if not rule_ids or limit <= 0:
         return []
 
-    records = _load_json("scam_cases.json")
+    records = load_scam_cases(DATA_DIR)
+
     requested_rules = set(rule_ids)
 
     matches = []
