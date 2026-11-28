@@ -192,7 +192,7 @@ label.fl{font-size:13px;font-weight:650;display:block;margin-bottom:5px}
  <div class="stats">
   <div class="stat"><small>Đang tạm giữ</small><strong>128</strong></div><div class="stat"><small>Chờ tư vấn viên</small><strong>24</strong></div><div class="stat"><small>Rủi ro cao</small><strong style="color:var(--red)">17</strong></div><div class="stat"><small>Chờ xác minh</small><strong>42</strong></div>
  </div>
- <div class="card"><div class="row" style="justify-content:space-between"><h2>Hàng đợi xử lý</h2><span class="pill amber">3 ca mẫu</span></div>
+ <div class="card"><div class="row" style="justify-content:space-between"><h2>Hàng đợi xử lý</h2><span class="pill amber" id="queueCountBadge">3 ca mẫu</span></div>
  <div style="overflow-x:auto"><table class="queue"><thead><tr><th>Mã ca</th><th>Tình huống</th><th>Thời gian</th><th>Mức độ</th><th>Thao tác</th></tr></thead><tbody id="queueBody"></tbody></table></div>
  <div id="caseDetail" class="decision hidden"></div></div>
 </section>
@@ -443,6 +443,19 @@ async function analyze(){
      tokens_in=${total.tokens_in??0} · tokens_out=${total.tokens_out??0}
     </div>
    </div>`;
+
+  const toolsUsed = r.tools_used || [];
+  if(toolsUsed.includes('handoff_to_agent') || toolsUsed.includes('lock_wallet') || r.action !== 'EXPLAIN_AND_ASK_ONE_QUESTION'){
+   const caseTitle = cases.find(c=>c.id===selected && $('#message').value.trim()===c.text)?.label || (text.slice(0, 42) + (text.length > 42 ? '…' : ''));
+   addQueue({
+    id: 'CS-' + Math.floor(1027 + Math.random()*8970),
+    title: caseTitle,
+    time: 'Vừa thêm',
+    risk: r.priority === 'HIGH' ? 'Ưu tiên' : (r.priority === 'SECURITY' || tone === 'red' ? 'Cao' : 'Cần xác minh'),
+    tone: tone,
+    detail: `[Phân loại: ${r.classification} · Hành động: ${r.action} · Công cụ: ${toolsUsed.join(', ') || 'none'}] Tin nhắn khách: "${text}" → Phản hồi AI: ${r.output}`
+   });
+  }
  }catch(e){
   $('#chatlog').insertAdjacentHTML('beforeend',`<div class="bubble"><small>LỖI KẾT NỐI</small>Không gọi được backend tại ${API_BASE||window.location.origin}. Hãy chạy: python3 web/server.py</div>`);
  }finally{
@@ -450,25 +463,33 @@ async function analyze(){
  }
 }
 
-let queue=[
+const DEFAULT_QUEUE=[
 {id:'CS-1024',title:'Nghi bị chiếm tài khoản',time:'1 phút trước',risk:'Cao',tone:'red',detail:'Khách phủ nhận giao dịch. Giữ giao dịch và chuyển bộ phận bảo mật.'},
 {id:'CS-1025',title:'Thanh toán viện phí khẩn cấp',time:'3 phút trước',risk:'Ưu tiên',tone:'amber',detail:'Xác minh người nhận và mục đích thanh toán theo luồng ưu tiên.'},
 {id:'CS-1026',title:'Khóa thẻ và yêu cầu hoàn tiền',time:'5 phút trước',risk:'Cần xác minh',tone:'amber',detail:'Tách hai yêu cầu, xác minh chủ ví và quyền thực hiện từng tác vụ.'}
 ];
-function renderQueue(){
- $('#queueBody').innerHTML=queue.map((q,i)=>`<tr><td>${q.id}</td><td>${escapeHtml(q.title)}</td><td>${q.time}</td><td><span class="pill ${q.tone}">${q.risk}</span></td><td><button class="secondary" data-case="${i}">Xem ca</button></td></tr>`).join('');
- document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{const q=queue[+b.dataset.case];$('#caseDetail').classList.remove('hidden');$('#caseDetail').innerHTML=`<div class="row" style="justify-content:space-between"><h3>${escapeHtml(q.title)}</h3><span class="pill ${q.tone}">${q.risk}</span></div><p class="small">Mã ca: ${q.id}</p><p>${escapeHtml(q.detail)}</p><div class="notice">MVP chỉ ghi nhận và hiển thị ca. Không có nút phê duyệt giải ngân, hoàn tiền hoặc mở chặn.</div>`});
+function loadSavedQueue(){
+ try{
+  const raw = window.localStorage.getItem('vat_queue');
+  if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed) && parsed.length) return parsed; }
+ }catch(e){}
+ return [...DEFAULT_QUEUE];
 }
-// let queue=[
-// {id:'CS-1024',title:'Nghi bị chiếm tài khoản',time:'1 phút trước',risk:'Cao',tone:'red',detail:'Khách phủ nhận giao dịch. Giữ giao dịch và chuyển bộ phận bảo mật.'},
-// {id:'CS-1025',title:'Thanh toán viện phí khẩn cấp',time:'3 phút trước',risk:'Ưu tiên',tone:'amber',detail:'Xác minh người nhận và mục đích thanh toán theo luồng ưu tiên.'},
-// {id:'CS-1026',title:'Khóa thẻ và yêu cầu hoàn tiền',time:'5 phút trước',risk:'Cần xác minh',tone:'amber',detail:'Tách hai yêu cầu, xác minh chủ ví và quyền thực hiện từng tác vụ.'}
-// ];
-// function addQueue(item){queue.unshift({id:item.id,title:item.d.label,time:'Vừa thêm',risk:item.d.level,tone:item.d.tone,detail:item.d.reason}) ;renderQueue()}
-// function renderQueue(){
-//  $('#queueBody').innerHTML=queue.map((q,i)=>`<tr><td>${q.id}</td><td>${escapeHtml(q.title)}</td><td>${q.time}</td><td><span class="pill ${q.tone}">${q.risk}</span></td><td><button class="secondary" data-case="${i}">Xem ca</button></td></tr>`).join('');
-//  document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{const q=queue[+b.dataset.case];$('#caseDetail').classList.remove('hidden');$('#caseDetail').innerHTML=`<div class="row" style="justify-content:space-between"><h3>${escapeHtml(q.title)}</h3><span class="pill ${q.tone}">${q.risk}</span></div><p class="small">Mã ca: ${q.id}</p><p>${escapeHtml(q.detail)}</p><div class="notice">MVP chỉ ghi nhận và hiển thị ca. Không có nút phê duyệt giải ngân, hoàn tiền hoặc mở chặn.</div>`});
-// }
+let queue = loadSavedQueue();
+function addQueue(item){
+ queue.unshift(item);
+ try{ window.localStorage.setItem('vat_queue', JSON.stringify(queue)); }catch(e){}
+ renderQueue();
+}
+window.addEventListener('storage', (e)=>{
+ if(e.key==='vat_queue'){ queue = loadSavedQueue(); renderQueue(); }
+});
+function renderQueue(){
+ const badge=$('#queueCountBadge');
+ if(badge) badge.textContent = queue.length === 3 ? '3 ca mẫu' : `${queue.length} ca chờ xử lý`;
+ $('#queueBody').innerHTML=queue.map((q,i)=>`<tr><td>${q.id}</td><td>${escapeHtml(q.title)}</td><td>${q.time}</td><td><span class="pill ${q.tone}">${q.risk}</span></td><td><button class="secondary" data-case="${i}">Xem ca</button></td></tr>`).join('');
+ document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{const q=queue[+b.dataset.case];$('#caseDetail').classList.remove('hidden');$('#caseDetail').innerHTML=`<div class="row" style="justify-content:space-between"><h3>${escapeHtml(q.title)}</h3><span class="pill ${q.tone}">${q.risk}</span></div><p class="small">Mã ca: ${q.id} · Thời gian: ${escapeHtml(q.time)}</p><p>${escapeHtml(q.detail)}</p><div class="notice">MVP chỉ ghi nhận và hiển thị hồ sơ bàn giao (Handoff Summary). Quyết định mở chặn (release_transaction) thuộc thẩm quyền Tư vấn viên.</div>`});
+}
 $('#analyze').onclick=analyze;
 renderScenarios();renderQueue();
 initBackendStatus();
