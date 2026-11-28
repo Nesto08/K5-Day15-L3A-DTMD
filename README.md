@@ -1,7 +1,7 @@
 > Đây là khung repo nộp bài. Điền mọi chỗ `____`, giữ nguyên tên các mục. **Mục 0 xoá đi sau khi tạo repo xong.**
 > Giờ, mốc, luật, rubric: xem `README.md`, `02-guide.md`, `03-rubric.md` trong repo đề (bộ đề BTC phát).
 
-# [Tên nhóm] — [Tên lát cắt]
+# DTMD — Ví An Toàn | Track E3 – Finance
 
 **Thành viên, lớp, track:** xem [TEAMS.md](TEAMS.md). **Điền TEAMS.md đúng format**: khi chấm và đánh giá, BTC quét file này để ghép điểm cho từng người.
 
@@ -108,13 +108,26 @@ Nhóm dùng stack khác (Node, Streamlit, notebook…): sửa hàm `run_app()` t
 
 | Thành phần | Thật / Giả | Ghi chú |
 |---|---|---|
-| Lời gọi AI ở quyết định trung tâm | **Thật** (bắt buộc từ CP3) | Model: ____ |
-|  |  |  |
+| Lời gọi AI ở quyết định trung tâm | **Thật** (bắt buộc từ CP3) | Model: OpenAI GPT-5.4-nano |
+| Phân loại và trích xuất ngữ cảnh | **Thật** | LLM phân tích nội dung người dùng và nhận diện tình huống. |
+| Rulebase và Policy Engine | **Thật** | Đánh giá rủi ro và kiểm soát quyền thực thi bằng Python. |
+| Guardrails | **Thật** | Kiểm tra đầu vào, đầu ra và bảo vệ thông tin nhạy cảm. |
+| Retrieval | **Thật** | Tra cứu kịch bản lừa đảo liên quan theo mã luật. |
+| Quản lý hội thoại | **Thật** | Hỗ trợ hội thoại nhiều lượt và lưu trạng thái Session. |
+| Bằng chứng người dùng | **Thật** | Dữ liệu khảo sát và phỏng vấn đã ẩn danh. |
+| Dữ liệu giao dịch | **Giả** | Dữ liệu mô phỏng phục vụ thử nghiệm. |
+| Giữ giao dịch | **Giả** | Không tác động đến giao dịch tài chính thật. |
+| Bảo vệ tài khoản | **Giả** | Tạo yêu cầu chờ con người phê duyệt. |
+| Bàn giao tư vấn viên | **Giả** | Tạo bản nháp bàn giao trong môi trường sandbox. |
+| Đánh giá Benchmark | **Thật** | Chạy bộ câu thử bằng model thật. |
+| Chi phí vận hành | **Mô phỏng** | Dựa trên token usage thực tế và kịch bản sử dụng. |
 
 ## Dùng AI vào việc gì
 
-2–3 dòng (bắt buộc): nhóm dùng công cụ AI nào để làm gì, người kiểm lại phần nào. Chi tiết: [docs/ai-usage.md](docs/ai-usage.md). Coding agent đọc [AGENTS.md](AGENTS.md).
+2–3 dòng (bắt buộc): nhóm dùng công cụ AI nào để làm gì, người kiểm lại phần nào. Chi tiết: [docs/ai-usage.md](docs/ai-usage.md). Coding agent đọc [AGENTS.md](AGENTS.md).:
+Nhóm sử dụng ChatGPT và các công cụ AI được khai báo trong AI Usage Log để hỗ trợ thiết kế kiến trúc, phát triển code, xây dựng prompt, kiểm thử, phân tích lỗi và hoàn thiện tài liệu.
 
+Các thành viên trực tiếp kiểm tra, chỉnh sửa và xác minh kết quả do AI tạo ra trước khi tích hợp vào sản phẩm.
 ____
 
 ## File mẫu — điền ở bước nào
