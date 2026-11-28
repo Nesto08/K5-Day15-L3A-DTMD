@@ -121,7 +121,7 @@ class TestAgent(unittest.TestCase):
             return_value=mock_response("unclear"),
         ):
             result = agent.run_agent(
-                "Có ai vừa rút tiền của em?",
+                "Có giao dịch rút tiền mà em không thực hiện.",
                 self.session,
             )
 
@@ -129,6 +129,16 @@ class TestAgent(unittest.TestCase):
             result["classification"],
             "account_takeover",
         )
+
+    def test_question_about_possible_unauthorized_transfer(self):
+        with patch.object(
+            agent, "call_model", return_value=mock_response("account_takeover")
+        ):
+            result = agent.run_agent("Có ai vừa chuyển tiền của mình à?", self.session)
+            self.assertEqual(result["action"], "EXPLAIN_AND_ASK_ONE_QUESTION")
+            self.assertEqual(self.session["pending_question"], "USER_DENIES_TRANSACTION")
+            confirmed = agent.run_agent("Có", self.session)
+            self.assertEqual(confirmed["action"], "DRAFT_LOCK_AND_ESCALATE_SECURITY")
 
     def test_unclear_one_question(self):
 
