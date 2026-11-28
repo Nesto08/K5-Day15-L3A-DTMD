@@ -19,6 +19,9 @@ SAFE_QUESTION = (
     "Có ai đang yêu cầu hoặc gây áp lực "
     "buộc bạn thực hiện giao dịch này không?"
 )
+UNAUTHORIZED_TRANSACTION_QUESTION = (
+    "Bạn có thấy giao dịch nào trong lịch sử ví mà bạn không thực hiện không?"
+)
 
 
 def _decision(
@@ -76,6 +79,7 @@ def decide(
     question_count: int = 0,
     legitimate_evidence_verified: bool = False,
     model_failed: bool = False,
+    asks_about_unauthorized_transaction: bool = False,
 ) -> dict:
     """Quyết định hành động an toàn cho Agent.
 
@@ -214,14 +218,20 @@ def decide(
     # ------------------------------------------------
 
     if question_count == 0:
-        return _decision(
+        decision = _decision(
             classification="unclear",
             action="EXPLAIN_AND_ASK_ONE_QUESTION",
             tier=1,
             tools=["request_verification"],
             reason="Cần thêm thông tin về ngữ cảnh.",
-            question=SAFE_QUESTION,
+            question=(
+                UNAUTHORIZED_TRANSACTION_QUESTION
+                if asks_about_unauthorized_transaction else SAFE_QUESTION
+            ),
         )
+        if asks_about_unauthorized_transaction:
+            decision["question_fact"] = "USER_DENIES_TRANSACTION"
+        return decision
 
     # ------------------------------------------------
     # 6. Vẫn chưa rõ sau khi đã hỏi

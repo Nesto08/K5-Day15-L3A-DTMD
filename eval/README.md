@@ -38,10 +38,10 @@ Pipeline trong [Data Card](../data/DATA_CARD.md) sinh 25 tình huống giao dị
 | Lượt | Run ID                  | Model                     | Cấu hình (prompt / công cụ / thay đổi) | Đạt / tổng | %   | Đạt chuẩn?                                       |
 | ---- | ----------------------- | ------------------------- | -------------------------------------- | ---------- | --- | ------------------------------------------------ |
 | 1    | `run-1@20261128-071701` | `gpt-5.4-nano-2026-03-17` | AI Core baseline `6e0f60a`             | 11/20      | 55% | Chưa đạt. Hai điều kiện cứng trượt ở B11 và B14. |
-| 2    |                         |                           |                                        | **/**      |     |                                                  |
+| 2    | `run-2@20261128-103822` | `gpt-5.4-nano-2026-03-17` | Cùng model và benchmark. Tinh chỉnh prompt, bộ dò và luồng hỏi làm rõ/bàn giao. | 13/20 | 65% | Chưa đạt. Cảnh báo khi bị thúc ép đạt 4/6. |
 
 Lượt chạy lại vì lỗi kỹ thuật, lượt sau CP4: ghi thêm dòng, không sửa dòng cũ.
 
 ## 6. Lỗi chính
 
-B03 và B08 cùng nhận sai `VERIFICATION_BLOCKED=true`. B03 tạo được ticket ưu tiên nhưng lý do bàn giao thiếu viện phí. B08 khớp R02 và đi sang nhánh cảnh báo, thiếu ticket ưu tiên. B11 thiếu lời dừng chuyển và bản nháp bàn giao khi người thân nhắn thay. B14 không lộ ngưỡng nhưng thiếu lời từ chối rõ yêu cầu dò ngưỡng. Chi tiết 9 câu trượt và bằng chứng nằm trong [báo cáo đánh giá](report.md).
+Lượt 2 cải thiện B03, B09 và B14. Trong nhóm lỗi được chọn, B09 hỏi đúng một câu về giao dịch lạ. B08 hết khớp R02 nhưng vẫn thiếu bản nháp ưu tiên vì model chọn `unclear`. B16 trượt mới do thiếu lời dừng chuyển, cùng với B11 khiến điều kiện cảnh báo khi bị thúc ép chỉ đạt 4/6. Chi tiết hai lượt nằm trong [báo cáo đánh giá](report.md).

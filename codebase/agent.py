@@ -131,7 +131,9 @@ Schema:
     "facts": {},
     "out_of_scope": false,
     "third_party": false,
-    "requests_advisor": false
+    "requests_advisor": false,
+    "reports_medical_payment": false,
+    "asks_about_unauthorized_transaction": false
 }
 
 classification phải là đúng một trong bốn nhãn:
@@ -147,7 +149,7 @@ classification phải là đúng một trong bốn nhãn:
   Nhãn này không có nghĩa chứng từ đã được xác minh.
 
 - account_takeover:
-  Nghi bị chiếm tài khoản, giao dịch không do mình thực hiện,
+  Có dấu hiệu cụ thể như giao dịch đã thấy và xác nhận không do mình thực hiện,
   thiết bị lạ, mất quyền kiểm soát tài khoản,
   bị yêu cầu cung cấp bí mật hoặc quyền truy cập từ xa.
 
@@ -181,6 +183,13 @@ false: có căn cứ rõ rằng dấu hiệu không tồn tại.
 null: chưa đủ thông tin.
 
 Không tự suy diễn false chỉ vì người dùng không nhắc đến.
+VERIFICATION_BLOCKED chỉ bật khi có người cản việc kiểm chứng độc lập.
+Ví tạm giữ giao dịch hoặc yêu cầu xác minh chưa phải dấu hiệu bị cản.
+USER_DENIES_TRANSACTION chỉ bật khi người dùng phủ nhận một giao dịch cụ thể.
+Câu hỏi liệu có ai khác vừa giao dịch, khi chưa xác nhận có giao dịch lạ,
+thuộc unclear và asks_about_unauthorized_transaction = true.
+reports_medical_payment = true nếu người dùng tự báo cần thanh toán viện phí
+hoặc chi phí y tế. Đây là thông tin tự khai, chưa xác minh.
 
 out_of_scope = true nếu người dùng yêu cầu:
 - Tư vấn đầu tư, chọn cổ phiếu, tiền mã hóa.
@@ -269,6 +278,8 @@ def parse_model_output(text: str) -> dict:
         "out_of_scope",
         "third_party",
         "requests_advisor",
+        "reports_medical_payment",
+        "asks_about_unauthorized_transaction",
     ):
         value = data.get(key, False)
 
@@ -286,10 +297,9 @@ def parse_model_output(text: str) -> dict:
 
 ATO_PATTERNS = (
     r"không phải (tôi|em|mình).{0,30}(chuyển|rút|giao dịch)",
-    r"(tôi|em|mình) không.{0,15}(chuyển|rút|thực hiện)",
+    r"(tôi|em|mình) không (?:hề )?(chuyển|rút|thực hiện)",
     r"(bị|nghi).{0,20}(chiếm|hack).{0,20}(ví|tài khoản)",
     r"(thiết bị|máy|đăng nhập) lạ",
-    r"có ai.{0,20}(rút|chuyển) tiền",
     r"giao dịch.{0,20}không phải của",
     r"mất quyền.{0,20}(truy cập|kiểm soát)",
 )
@@ -346,6 +356,9 @@ def build_handoff_summary(
         evidence.get("transaction_flags", {}).items()
         if status == "MATCHED"
     ]
+    user_summary = decision["reason"]
+    if decision.get("reports_medical_payment"):
+        user_summary += " Người dùng tự báo cần thanh toán viện phí."
 
     return {
         "transaction_id": transaction["tx_id"],
@@ -357,7 +370,7 @@ def build_handoff_summary(
         "context_flags": evidence.get(
             "context_flags", {}
         ),
-        "user_summary": decision["reason"],
+        "user_summary": user_summary,
         "actions_taken": list(actions_taken),
         "recommended_action": decision["action"],
         "priority": decision.get("priority"),
@@ -394,7 +407,9 @@ def execute_decision(
 
                 if result.get("ok"):
                     session["question_count"] += 1
-                    session["pending_question"] = "COERCIVE_PRESSURE"
+                    session["pending_question"] = decision.get(
+                        "question_fact", "COERCIVE_PRESSURE"
+                    )
 
             elif tool_name == "hold_transaction":
                 result = hold_transaction(
@@ -543,8 +558,13 @@ def build_response(decision, results, retrieved_cases):
 
         if decision.get("priority") == "HIGH":
 
+            purpose = (
+                "đóng viện phí"
+                if decision.get("reports_medical_payment")
+                else "thanh toán"
+            )
             response = (
-                "Tôi hiểu bạn đang cần thanh toán gấp. "
+                f"Tôi hiểu bạn đang cần {purpose} gấp. "
                 "Tình huống cần được tư vấn viên "
                 "kiểm tra với mức ưu tiên cao. "
                 "Bạn có thể chuẩn bị hóa đơn hoặc chứng từ "
@@ -637,17 +657,17 @@ def run_agent(text: str, session: dict) -> dict:
     pending_question = session.get("pending_question")
     short_reply = sanitized.casefold().strip(" .!?")
 
-    pressure_confirmed = (
-        pending_question == "COERCIVE_PRESSURE"
-        and short_reply in {
+    confirmed = short_reply in {
             "c\u00f3",
             "\u0111\u00fang",
             "\u0111\u00fang v\u1eady",
             "c\u00f3 \u1ea1",
             "v\u00e2ng",
             "yes",
-        }
-    )
+    }
+    pressure_confirmed = pending_question == "COERCIVE_PRESSURE" and confirmed
+    if pending_question == "USER_DENIES_TRANSACTION" and confirmed:
+        critical_facts["USER_DENIES_TRANSACTION"] = True
 
     pressure_denied = (
         pending_question == "COERCIVE_PRESSURE"
@@ -839,6 +859,13 @@ def run_agent(text: str, session: dict) -> dict:
         facts,
         session.get("previous_flags", {}),
     )
+    asks_about_unauthorized_transaction = (
+        parsed.get("asks_about_unauthorized_transaction")
+        or classification == "account_takeover"
+        or matches(sanitized, (r"có ai.{0,20}(rút|chuyển) tiền",))
+    )
+    if classification == "account_takeover" and not evidence["has_ato_signal"]:
+        classification = "unclear"
 
     # Giữ dấu hiệu rủi ro đã xác lập trong cùng session.
     previous = session.get("previous_classification")
@@ -928,6 +955,11 @@ def run_agent(text: str, session: dict) -> dict:
             is True
         ),
         model_failed=model_failed,
+        asks_about_unauthorized_transaction=asks_about_unauthorized_transaction,
+    )
+    decision["reports_medical_payment"] = (
+        decision.get("priority") == "HIGH"
+        and parsed.get("reports_medical_payment", False)
     )
 
     note(
