@@ -118,10 +118,10 @@ def decide(
     ):
         return _decision(
             classification="account_takeover",
-            action="DRAFT_LOCK_AND_ESCALATE_SECURITY",
+            action="FREEZE_SESSION_AND_ESCALATE_SECURITY",
             tier=3,
             tools=[
-                "lock_wallet",
+                "freeze_session",
                 "handoff_to_agent",
             ],
             reason="Phát hiện dấu hiệu chiếm tài khoản.",
@@ -252,7 +252,7 @@ def is_tool_allowed(
         "request_verification",
         "hold_transaction",
         "handoff_to_agent",
-        "lock_wallet",
+        "freeze_session",
     }
 
     return (

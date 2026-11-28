@@ -239,26 +239,26 @@ def handoff_to_agent(
 
 
 # ============================================================
-# TOOL 05 — YÊU CẦU BẢO VỆ VÍ
+# TOOL 05 — ĐÓNG BĂNG PHIÊN / BẢO VỆ VÍ
 # Mức tự động hóa 3 — Human-in-the-Loop
 # ============================================================
 
 @tool
-def lock_wallet(user_id: str) -> dict:
-    """Tạo bản nháp yêu cầu khóa bảo vệ ví khi nghi ngờ ATO.
+def freeze_session(user_id: str) -> dict:
+    """Tạo bản nháp yêu cầu đóng băng phiên/bảo vệ ví khi nghi ngờ ATO.
 
     Input: mã người dùng (str).
     Output: mã yêu cầu và trạng thái chờ phê duyệt (dict).
-    Tác động ra ngoài: không; không khóa ví thật.
+    Tác động ra ngoài: không; không khóa ví thật, không tự đóng băng.
     """
 
     return {
         "ok": True,
         "sandbox": True,
-        "request_id": f"LOCK-{uuid4().hex[:8]}",
+        "request_id": f"FREEZE-{uuid4().hex[:8]}",
         "user_id": user_id,
         "status": "PENDING_HUMAN_APPROVAL",
-        "wallet_locked": False,
+        "session_frozen": False,
     }
 
 

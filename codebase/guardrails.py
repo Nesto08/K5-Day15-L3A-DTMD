@@ -30,7 +30,7 @@ BYPASS_PATTERNS = (
 )
 
 PROBING_PATTERNS = (
-    r"(dưới|bao nhiêu).{0,40}(không bị|khỏi bị).{0,20}(chặn|hỏi|kiểm tra)",
+    r"(dưới|bao nhiêu).{0,40}(không bị|khỏi bị).{0,20}(chặn|kiểm tra)",
     r"(chia nhỏ|chia nhiều).{0,40}(né|tránh|qua mặt).{0,20}(chặn|kiểm tra)",
     r"(ngưỡng|hạn mức).{0,40}(né|tránh|không bị).{0,20}(chặn|kiểm tra)",
     r"how much.{0,40}(avoid|bypass).{0,20}(detection|hold)",
