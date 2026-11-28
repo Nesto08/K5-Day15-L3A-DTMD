@@ -136,8 +136,8 @@ label.fl{font-size:13px;font-weight:650;display:block;margin-bottom:5px}
    <h2 id="loginTitle" style="margin-bottom:4px">Đăng nhập — Người dùng</h2>
    <p class="small" style="margin-bottom:16px">Nhập tài khoản để vào khung chat hỗ trợ giao dịch.</p>
    <form id="loginForm">
-    <div class="field"><label class="fl" for="loginUser">Tài khoản</label><input id="loginUser" autocomplete="username" placeholder="Mời nhập tên đăng nhập"></div>
-    <div class="field"><label class="fl" for="loginPass">Mật khẩu</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="Mời điền mật khẩu"></div>
+    <div class="field"><label class="fl" for="loginUser">Tài khoản</label><input id="loginUser" autocomplete="username" placeholder="Điền tên đăng nhập"></div>
+    <div class="field"><label class="fl" for="loginPass">Mật khẩu</label><input id="loginPass" type="password" autocomplete="current-password" placeholder="Điền mật khẩu"></div>
     <div id="loginErrorBox"></div>
     <button class="primary full" type="submit">Đăng nhập →</button>
    </form>
@@ -165,8 +165,13 @@ label.fl{font-size:13px;font-weight:650;display:block;margin-bottom:5px}
 <section id="customer">
  <div class="layout">
   <main class="card">
-   <h1>Trợ lý hỗ trợ giao dịch</h1><p class="sub">Trao đổi với trợ lý để hiểu trạng thái giao dịch và nhận hướng dẫn an toàn.</p>
-   <div class="status"><span>⏳</span><div><b>Giao dịch đang tạm giữ</b><span class="small">Mã mô phỏng: TX-804291 · 8.500.000 ₫</span><br><span class="small">Tiền chưa được chuyển đến người nhận.</span></div></div>
+   <div class="row" style="justify-content:space-between;margin-bottom:6px">
+    <h1 style="margin-bottom:0">Trợ lý hỗ trợ giao dịch</h1>
+    <button class="secondary" id="restartScenario" type="button" title="Xoá hội thoại, bắt đầu lại tình huống trong cùng phiên">↺ Bắt đầu lại tình huống</button>
+   </div>
+   <p class="sub">Trao đổi với trợ lý để hiểu trạng thái giao dịch và nhận hướng dẫn an toàn.</p>
+   <p class="small" id="backendBadge" style="margin:-10px 0 14px">Đang kiểm tra kết nối backend…</p>
+   <div class="status"><span>⏳</span><div><b>Giao dịch đang tạm giữ</b><span class="small">Mã mô phỏng: TX-0001 · xem chi tiết trong hồ sơ sandbox</span><br><span class="small">Tiền chưa được chuyển đến người nhận.</span></div></div>
    <div class="chatlog" id="chatlog" aria-live="polite">
     <div class="bubble"><small>TRỢ LÝ AI</small>Xin chào. Tôi có thể giúp kiểm tra giao dịch đang tạm giữ. Bạn đang gặp tình huống nào?</div>
    </div>
@@ -232,8 +237,8 @@ initTheme();
 
 /* ===== Login / roles ===== */
 const ACCOUNTS={
- user:{username:'user',password:'user',label:'Người dùng',tabs:['customer','policy']},
- admin:{username:'admin',password:'admin',label:'Tư vấn viên',tabs:['agent','policy']}
+ user:{username:'user',password:'user1234',label:'Người dùng',tabs:['customer','policy']},
+ admin:{username:'admin',password:'admin1234',label:'Tư vấn viên',tabs:['agent','policy']}
 };
 let activeRole='user';
 let currentUser=null;
@@ -299,54 +304,175 @@ const cases=[
 {id:'multi',label:'Hai yêu cầu cùng lúc',text:'Khóa thẻ giúp tôi và hoàn lại tiền giao dịch vừa bị chặn.'},
 {id:'face',label:'Đã xác thực khuôn mặt',text:'Em đã xác thực khuôn mặt thành công nhưng vẫn muốn chuyển tiền theo yêu cầu của người kia.'}
 ];
-const decisions={
-pressure:{label:'Nghi bị thao túng / giục chuyển tiền',level:'Rủi ro cao',tone:'red',action:'Tiếp tục giữ giao dịch',route:'Chuyển tư vấn viên',reason:'Có dấu hiệu thúc ép chuyển tiền. Xác thực danh tính đơn lẻ không đủ để kết luận giao dịch an toàn.'},
-urgent:{label:'Nhu cầu thanh toán khẩn cấp',level:'Cần ưu tiên',tone:'amber',action:'Giữ giao dịch, xác minh nhanh',route:'Ưu tiên tư vấn viên',reason:'Ghi nhận nhu cầu cấp thiết. Hỗ trợ xác minh người nhận và mục đích thanh toán theo luồng ưu tiên; không tự động bỏ chặn.'},
-account:{label:'Nghi chiếm quyền tài khoản',level:'Rủi ro cao',tone:'red',action:'Giữ giao dịch và bảo vệ tài khoản',route:'Chuyển bộ phận bảo mật',reason:'Người dùng phủ nhận giao dịch hoặc mô tả hoạt động không nhận biết. Cần xác minh quyền kiểm soát tài khoản và bảo vệ các phương thức thanh toán.'},
-unclear:{label:'Chưa đủ thông tin',level:'Cần làm rõ',tone:'blue',action:'Hỏi thêm một câu',route:'Tiếp tục hội thoại',reason:'Cần làm rõ giao dịch cụ thể và liệu người dùng có tự thực hiện hay không.'},
-relative:{label:'Người yêu cầu chưa được xác minh',level:'Cần xác minh',tone:'amber',action:'Giữ giao dịch, xác minh chủ ví',route:'Chuyển tư vấn viên',reason:'Người nhắn có thể không phải chủ ví. Không mở chặn hoặc thay đổi tài khoản theo yêu cầu của bên thứ ba.'},
-bypass:{label:'Dò cách né kiểm soát',level:'Rủi ro cao',tone:'red',action:'Không cung cấp ngưỡng né kiểm soát',route:'Giữ giao dịch và chuyển tư vấn viên',reason:'Không tiết lộ ngưỡng hoặc quy tắc có thể giúp né hệ thống. Chuyển đánh giá theo quy trình nội bộ.'},
-multi:{label:'Nhiều ý định trong một tin nhắn',level:'Cần xác minh',tone:'amber',action:'Tách yêu cầu, chưa thực thi',route:'Chuyển tư vấn viên',reason:'Khóa thẻ và hoàn tiền là hai tác vụ khác nhau. Xác minh và cấp quyền riêng cho từng tác vụ.'},
-face:{label:'Xác thực sinh trắc học nhưng có dấu hiệu thao túng',level:'Rủi ro cao',tone:'red',action:'Tiếp tục giữ giao dịch',route:'Chuyển tư vấn viên',reason:'Xác thực khuôn mặt chứng minh một yếu tố xác thực, không chứng minh người dùng không bị lừa hoặc cưỡng ép.'}
-};
-let selected='urgent',latest=null;
+// ============================================================
+// TÍCH HỢP BACKEND THẬT — Task 1, 2, 5
+// Thay cho bộ phân loại từ khoá giả lập bằng JS thuần trước đây.
+// Toàn bộ phân loại/quyết định nay do codebase/agent.py thật xử lý.
+// ============================================================
+const API_BASE = window.location.origin.includes('5000')
+  ? '' // phục vụ trực tiếp từ Flask (cùng origin)
+  : 'http://127.0.0.1:5000';
+
+let currentSessionId = null;
+let backendInfo = {model_provider:'unknown', is_real_model:false};
+
+async function apiGet(path){
+ const res = await fetch(API_BASE+path);
+ return res.json();
+}
+async function apiPost(path, body){
+ const res = await fetch(API_BASE+path, {
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body: JSON.stringify(body||{})
+ });
+ return res.json();
+}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
 function renderScenarios(){
  $('#scenarios').innerHTML=cases.map(c=>`<button class="scenario ${c.id===selected?'selected':''}" data-id="${c.id}">${c.label}</button>`).join('');
  document.querySelectorAll('.scenario').forEach(b=>b.onclick=()=>{selected=b.dataset.id;$('#message').value=cases.find(c=>c.id===selected).text;renderScenarios()});
 }
-function classify(text){
- const t=text.toLowerCase();
- if(/dưới bao nhiêu|né hệ thống|không bị.*xác minh|ngưỡng/.test(t))return 'bypass';
- if(/khóa thẻ|khoa the/.test(t)&&/hoàn tiền|hoan tien|trả lại|refund/.test(t))return 'multi';
- if(/người nhà|người thân|tôi là.*chủ ví|thay.*chủ ví/.test(t))return 'relative';
- if(/khuôn mặt|khuon mat|sinh trắc/.test(t)&&/người kia|giục|yêu cầu.*chuyển|chuyen tien/.test(t))return 'face';
- if(/không thực hiện|không phải tôi|không nhận ra|ai vừa.*rút|đăng nhập.*lạ|chiếm tài khoản/.test(t))return 'account';
- if(/viện phí|cap cuu|cấp cứu|bệnh viện|quầy viện/.test(t))return 'urgent';
- if(/giục|thúc ép|đe dọa|mất cơ hội|chuyển ngay|khẩn trương chuyển/.test(t))return 'pressure';
- return 'unclear';
+let selected='urgent';
+
+async function initBackendStatus(){
+ try{
+  backendInfo = await apiGet('/api/health');
+  renderBackendBadge();
+ }catch(e){
+  backendInfo = {model_provider:'unreachable', is_real_model:false};
+  renderBackendBadge();
+ }
 }
-function analyze(){
- const text=$('#message').value.trim();if(!text){alert('Vui lòng nhập nội dung cần hỗ trợ.');return}
- const key=classify(text),d=decisions[key];latest={key,text,d,id:'TX-'+Math.floor(100000+Math.random()*899999)};
- $('#chatlog').insertAdjacentHTML('beforeend',`<div class="bubble user"><small>BẠN</small>${escapeHtml(text)}</div><div class="bubble"><small>TRỢ LÝ AI · KẾT QUẢ MÔ PHỎNG</small>${d.action}. ${d.reason}</div>`);
- $('#chatlog').scrollTop=$('#chatlog').scrollHeight;
- $('#result').innerHTML=`<div class="decision"><span class="pill ${d.tone}">${d.level}</span><p class="small" style="margin:10px 0 2px">NHẬN DIỆN</p><b>${d.label}</b><h3>${d.action}</h3><p>${d.reason}</p><div class="rule"><b>Hướng xử lý</b>${d.route}</div><div class="notice">Đây là đề xuất của bộ phân loại luật minh họa. Giao dịch vẫn được giữ; chưa có hành động tài chính hoặc thay đổi tài khoản nào được thực hiện.</div><button class="secondary full" id="addQueue">Đưa ca mô phỏng vào hàng đợi tư vấn viên</button></div>`;
- $('#addQueue').onclick=()=>{addQueue(latest);alert('Đã thêm ca mô phỏng vào hàng đợi.')};
- renderScenarios();
+function renderBackendBadge(){
+ const el = $('#backendBadge');
+ if(!el) return;
+ if(backendInfo.model_provider==='unreachable'){
+  el.innerHTML = '⚠️ Không kết nối được backend (python3 web/server.py)';
+  el.style.color = 'var(--red)';
+ } else if(backendInfo.is_real_model){
+  el.innerHTML = `🟢 Model thật: <b>${escapeHtml(backendInfo.model_name||backendInfo.model_provider)}</b>`;
+  el.style.color = 'var(--green)';
+ } else {
+  el.innerHTML = '🟡 Đang chạy model giả lập (fake) — chưa cấu hình .env';
+  el.style.color = 'var(--amber)';
+ }
 }
-function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+async function ensureSession(){
+ if(currentSessionId) return currentSessionId;
+ const r = await apiPost('/api/session/start', {tx_id:'TX-0001', authenticated_user_id:'USER-0001'});
+ currentSessionId = r.session_id;
+ return currentSessionId;
+}
+
+async function restartScenario(){
+ if(!currentSessionId){await ensureSession();}
+ await apiPost(`/api/session/${currentSessionId}/reset`, {tx_id:'TX-0001', authenticated_user_id:'USER-0001'});
+ $('#chatlog').innerHTML = '<div class="bubble"><small>TRỢ LÝ AI</small>Xin chào. Tôi có thể giúp kiểm tra giao dịch đang tạm giữ. Bạn đang gặp tình huống nào?</div>';
+ $('#result').innerHTML = '<div class="notice">Kết quả phân loại và phương án xử lý sẽ hiển thị tại đây sau khi phân tích.</div>';
+ renderEvidence(null);
+}
+
+const TONE_BY_ACTION = {
+ KEEP_HOLD_AND_WARN:'red', FREEZE_SESSION_AND_ESCALATE_SECURITY:'red',
+ REFUSE_UNSAFE_REQUEST:'red', REFUSE_OUT_OF_SCOPE:'red', DENY_UNAUTHORIZED:'red',
+ ESCALATE_PRIORITY_ADVISOR:'amber', KEEP_HOLD_AND_ESCALATE:'amber',
+ EXPLAIN_AND_ASK_ONE_QUESTION:'blue', DATA_UNAVAILABLE:'blue',
+};
+const LEVEL_BY_ACTION = {
+ KEEP_HOLD_AND_WARN:'Rủi ro cao — nghi lừa đảo', FREEZE_SESSION_AND_ESCALATE_SECURITY:'Rủi ro cao — nghi chiếm tài khoản',
+ REFUSE_UNSAFE_REQUEST:'Từ chối — yêu cầu vượt quyền', REFUSE_OUT_OF_SCOPE:'Từ chối — ngoài phạm vi',
+ DENY_UNAUTHORIZED:'Từ chối — chưa xác minh quyền', ESCALATE_PRIORITY_ADVISOR:'Ưu tiên — cần tư vấn viên',
+ KEEP_HOLD_AND_ESCALATE:'Cần xác minh thêm', EXPLAIN_AND_ASK_ONE_QUESTION:'Cần làm rõ',
+ DATA_UNAVAILABLE:'Không thể kiểm tra hồ sơ',
+};
+
+function renderEvidence(evidence){
+ const el = $('#result');
+ if(!evidence){ return; }
+}
+
+async function analyze(){
+ const text=$('#message').value.trim();
+ if(!text){alert('Vui lòng nhập nội dung cần hỗ trợ.');return}
+
+ const btn = $('#analyze'); btn.disabled = true; btn.textContent = 'Đang phân tích…';
+
+ try{
+  await ensureSession();
+
+  $('#chatlog').insertAdjacentHTML('beforeend',`<div class="bubble user"><small>BẠN</small>${escapeHtml(text)}</div>`);
+  $('#chatlog').scrollTop=$('#chatlog').scrollHeight;
+
+  const r = await apiPost(`/api/session/${currentSessionId}/message`, {text});
+
+  if(!r.ok){
+   $('#chatlog').insertAdjacentHTML('beforeend',`<div class="bubble"><small>LỖI</small>${escapeHtml(r.error||'Không rõ lỗi')}. Kiểm tra backend đã chạy chưa.</div>`);
+   return;
+  }
+
+  $('#chatlog').insertAdjacentHTML('beforeend',`<div class="bubble"><small>TRỢ LÝ AI · AGENT THẬT</small>${escapeHtml(r.output)}</div>`);
+  $('#chatlog').scrollTop=$('#chatlog').scrollHeight;
+
+  const tone = TONE_BY_ACTION[r.action] || 'blue';
+  const level = LEVEL_BY_ACTION[r.action] || r.action;
+  const ev = r.evidence || {};
+  const turn = ev.turn || {};
+  const total = ev.session_total || {};
+
+  $('#result').innerHTML = `
+   <div class="decision">
+    <span class="pill ${tone}">${escapeHtml(level)}</span>
+    <p class="small" style="margin:10px 0 2px">PHÂN LOẠI (classification)</p>
+    <b>${escapeHtml(r.classification)}</b>
+    <h3>${escapeHtml(r.action)}</h3>
+    <p>${escapeHtml(r.output)}</p>
+    <div class="rule"><b>Công cụ Agent đã gọi</b>${r.tools_used && r.tools_used.length ? r.tools_used.map(escapeHtml).join(', ') : '(không có — chỉ hội thoại)'}</div>
+    <div class="notice">
+     <b>Bằng chứng dùng AI thật (lượt này):</b>
+     model=${escapeHtml((turn.models||[]).join(', ')||'—')} ·
+     model_calls=${turn.model_calls??0} ·
+     tool_calls=${turn.tool_calls??0} ·
+     tokens_in=${turn.tokens_in??0} ·
+     tokens_out=${turn.tokens_out??0}
+     <br><b>Cộng dồn cả phiên:</b>
+     model_calls=${total.model_calls??0} · tool_calls=${total.tool_calls??0} ·
+     tokens_in=${total.tokens_in??0} · tokens_out=${total.tokens_out??0}
+    </div>
+   </div>`;
+ }catch(e){
+  $('#chatlog').insertAdjacentHTML('beforeend',`<div class="bubble"><small>LỖI KẾT NỐI</small>Không gọi được backend tại ${API_BASE||window.location.origin}. Hãy chạy: python3 web/server.py</div>`);
+ }finally{
+  btn.disabled = false; btn.textContent = 'Phân tích tin nhắn →';
+ }
+}
+
 let queue=[
 {id:'CS-1024',title:'Nghi bị chiếm tài khoản',time:'1 phút trước',risk:'Cao',tone:'red',detail:'Khách phủ nhận giao dịch. Giữ giao dịch và chuyển bộ phận bảo mật.'},
 {id:'CS-1025',title:'Thanh toán viện phí khẩn cấp',time:'3 phút trước',risk:'Ưu tiên',tone:'amber',detail:'Xác minh người nhận và mục đích thanh toán theo luồng ưu tiên.'},
 {id:'CS-1026',title:'Khóa thẻ và yêu cầu hoàn tiền',time:'5 phút trước',risk:'Cần xác minh',tone:'amber',detail:'Tách hai yêu cầu, xác minh chủ ví và quyền thực hiện từng tác vụ.'}
 ];
-function addQueue(item){queue.unshift({id:item.id,title:item.d.label,time:'Vừa thêm',risk:item.d.level,tone:item.d.tone,detail:item.d.reason}) ;renderQueue()}
 function renderQueue(){
  $('#queueBody').innerHTML=queue.map((q,i)=>`<tr><td>${q.id}</td><td>${escapeHtml(q.title)}</td><td>${q.time}</td><td><span class="pill ${q.tone}">${q.risk}</span></td><td><button class="secondary" data-case="${i}">Xem ca</button></td></tr>`).join('');
  document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{const q=queue[+b.dataset.case];$('#caseDetail').classList.remove('hidden');$('#caseDetail').innerHTML=`<div class="row" style="justify-content:space-between"><h3>${escapeHtml(q.title)}</h3><span class="pill ${q.tone}">${q.risk}</span></div><p class="small">Mã ca: ${q.id}</p><p>${escapeHtml(q.detail)}</p><div class="notice">MVP chỉ ghi nhận và hiển thị ca. Không có nút phê duyệt giải ngân, hoàn tiền hoặc mở chặn.</div>`});
 }
+// let queue=[
+// {id:'CS-1024',title:'Nghi bị chiếm tài khoản',time:'1 phút trước',risk:'Cao',tone:'red',detail:'Khách phủ nhận giao dịch. Giữ giao dịch và chuyển bộ phận bảo mật.'},
+// {id:'CS-1025',title:'Thanh toán viện phí khẩn cấp',time:'3 phút trước',risk:'Ưu tiên',tone:'amber',detail:'Xác minh người nhận và mục đích thanh toán theo luồng ưu tiên.'},
+// {id:'CS-1026',title:'Khóa thẻ và yêu cầu hoàn tiền',time:'5 phút trước',risk:'Cần xác minh',tone:'amber',detail:'Tách hai yêu cầu, xác minh chủ ví và quyền thực hiện từng tác vụ.'}
+// ];
+// function addQueue(item){queue.unshift({id:item.id,title:item.d.label,time:'Vừa thêm',risk:item.d.level,tone:item.d.tone,detail:item.d.reason}) ;renderQueue()}
+// function renderQueue(){
+//  $('#queueBody').innerHTML=queue.map((q,i)=>`<tr><td>${q.id}</td><td>${escapeHtml(q.title)}</td><td>${q.time}</td><td><span class="pill ${q.tone}">${q.risk}</span></td><td><button class="secondary" data-case="${i}">Xem ca</button></td></tr>`).join('');
+//  document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{const q=queue[+b.dataset.case];$('#caseDetail').classList.remove('hidden');$('#caseDetail').innerHTML=`<div class="row" style="justify-content:space-between"><h3>${escapeHtml(q.title)}</h3><span class="pill ${q.tone}">${q.risk}</span></div><p class="small">Mã ca: ${q.id}</p><p>${escapeHtml(q.detail)}</p><div class="notice">MVP chỉ ghi nhận và hiển thị ca. Không có nút phê duyệt giải ngân, hoàn tiền hoặc mở chặn.</div>`});
+// }
 $('#analyze').onclick=analyze;
 renderScenarios();renderQueue();
+initBackendStatus();
+if($('#restartScenario')) $('#restartScenario').onclick=restartScenario;
 </script>
 </body>
 </html>

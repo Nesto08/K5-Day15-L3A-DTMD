@@ -37,7 +37,7 @@ if __package__:
         request_verification,
         hold_transaction,
         handoff_to_agent,
-        lock_wallet,
+        freeze_session,
         search_scam_cases,
         _find_held_transaction,
     )
@@ -57,7 +57,7 @@ else:
         request_verification,
         hold_transaction,
         handoff_to_agent,
-        lock_wallet,
+        freeze_session,
         search_scam_cases,
         _find_held_transaction,
     )
@@ -289,7 +289,6 @@ ATO_PATTERNS = (
     r"(tôi|em|mình) không.{0,15}(chuyển|rút|thực hiện)",
     r"(bị|nghi).{0,20}(chiếm|hack).{0,20}(ví|tài khoản)",
     r"(thiết bị|máy|đăng nhập) lạ",
-    r"có ai.{0,20}(rút|chuyển) tiền",
     r"giao dịch.{0,20}không phải của",
     r"mất quyền.{0,20}(truy cập|kiểm soát)",
 )
@@ -401,8 +400,8 @@ def execute_decision(
                     transaction["tx_id"]
                 )
 
-            elif tool_name == "lock_wallet":
-                result = lock_wallet(
+            elif tool_name == "freeze_session":
+                result = freeze_session(
                     transaction["user_id"]
                 )
 
@@ -464,8 +463,8 @@ def build_response(decision, results, retrieved_cases):
         results, "handoff_to_agent"
     )
 
-    lock_ok = tool_succeeded(
-        results, "lock_wallet"
+    freeze_ok = tool_succeeded(
+        results, "freeze_session"
     )
 
     hold_ok = tool_succeeded(
@@ -510,7 +509,7 @@ def build_response(decision, results, retrieved_cases):
             "Không chia sẻ OTP, PIN hoặc mật khẩu."
         )
 
-    if action == "DRAFT_LOCK_AND_ESCALATE_SECURITY":
+    if action == "FREEZE_SESSION_AND_ESCALATE_SECURITY":
 
         response = (
             "Có dấu hiệu tài khoản có thể đang bị "
@@ -519,10 +518,11 @@ def build_response(decision, results, retrieved_cases):
             "bộ phận bảo mật chính thức ngay. "
         )
 
-        if lock_ok:
+        if freeze_ok:
             response += (
-                "Bản nháp yêu cầu bảo vệ ví đã được tạo "
-                "và đang chờ người có thẩm quyền phê duyệt. "
+                "Bản nháp yêu cầu đóng băng phiên/bảo vệ ví "
+                "đã được tạo và đang chờ người có thẩm quyền "
+                "phê duyệt. "
             )
 
         if handoff_ok:
